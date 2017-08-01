@@ -56,4 +56,31 @@
     <string name="editor_quantity_increment">+</string>
     <string name="editor_order_more">order more</string>
     <string name="editor_decrement_button_negative">Product quantity cannot be less than zero</string>
+    <string name="unsupported_insertion">Insertion is not supported for</string>
+    <string name="insert_product_no_name">Product needs a description</string>
+    <string name="insert_product_no_quantity">Quantity of product is required</string>
+    <string name="insert_product_no_price">Product requires price</string>
+    <string name="insert_product_no_supplier">Product requires a supplier</string>
+    <string name="insert_product_no_supplier_contact">Product requires suppplier contact information</string>
+    <string name="insert_failure">Failed to insert row for</string>
+    <string name="delete_product_failure">Deletion is not supported for:</string>
+    <string name="update_product_no_desc">Product requires a description</string>
+    <string name="update_product_no_quantity">Product requires quantity</string>
+    <string name="update_product_no_price">Product requires price information</string>
+    <string name="update_product_no_supplier">Products requires supplier information</string>
+    <string name="update_product_no_supplier_contact">Products requires supplier contact information</string>
+    <string name="update_product_failure">Update is not supported for</string>
+
+    <!-- Text for empty view with instructions to the user on how to populate the database  -->
+    <string name="user_instructions">
+        No products to display.\n
+        Press the below button enter new product information and save it to the database.
+    </string>
+    <string name="editor_save_product_no_price">Price cannot be left blank!</string>
+    <string name="hint_product_price">Price</string>
+    <string name="catalog_desc_header">Description</string>
+    <string name="catalog_quantity_header">Quantity</string>
+    <string name="catalog_price_header">Price</string>
+    <string name="provider_type_mismatch_part1">Unknown URI</string>
+    <string name="provider_type_mismatch_part2">with match</string>
 </resources>

@@ -25,6 +25,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".CatalogActivity"/>
         </activity>
+        <provider
+            android:authorities="com.example.android.stockkeepingassistant"
+            android:name=".data.ProductProvider"
+            android:exported="false"/>
     </application>
 
 </manifest>

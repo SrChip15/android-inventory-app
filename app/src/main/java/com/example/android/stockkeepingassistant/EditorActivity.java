@@ -1,16 +1,20 @@
 package com.example.android.stockkeepingassistant;
 
+import android.content.ContentValues;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
+
+import com.example.android.stockkeepingassistant.data.ProductContract.ProductEntry;
 
 public class EditorActivity extends AppCompatActivity {
 
@@ -18,9 +22,13 @@ public class EditorActivity extends AppCompatActivity {
 
 	private String mSupplierContact;
 
-	private Button mDecreaseQuantityButton;
+	private EditText mProductDescEditText;
 
-	private EditText mProductQuantity;
+	private EditText mProductQuantityEditText;
+
+	private EditText mProductPriceEditText;
+
+	private EditText mProductSupplierEditText;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -30,10 +38,13 @@ public class EditorActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_editor);
 
 		// Get handle on the elements of the ViewGroup
+		mProductDescEditText = (EditText) findViewById(R.id.editor_product_name);
+		mProductQuantityEditText = (EditText) findViewById(R.id.editor_product_quantity);
+		mProductPriceEditText = (EditText) findViewById(R.id.editor_product_price);
+		mProductSupplierEditText = (EditText) findViewById(R.id.editor_product_supplier_name);
 		mSupplierContactSpinner = (Spinner) findViewById(R.id.spinner_supplier_contact);
-		mProductQuantity = (EditText) findViewById(R.id.editor_product_quantity);
 		// Set default text on quantity field
-		mProductQuantity.setText(String.valueOf(0));
+		mProductQuantityEditText.setText(String.valueOf(0));
 
 		// Setup spinner
 		setupSpinner();
@@ -53,6 +64,9 @@ public class EditorActivity extends AppCompatActivity {
 			// Respond to a click on the "Save" menu option
 			case R.id.action_save:
 				// Save/update product
+				saveProduct();
+				// Exit activity
+				finish();
 				return true;
 			// Respond to a click on the "Delete" menu option
 			case R.id.action_delete:
@@ -82,7 +96,7 @@ public class EditorActivity extends AppCompatActivity {
 		// Apply the adapter to the spinner
 		mSupplierContactSpinner.setAdapter(genderSpinnerAdapter);
 
-		/*// Set the integer mSelected to the constant values
+		// Set the integer mSelected to the constant values
 		mSupplierContactSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -117,19 +131,60 @@ public class EditorActivity extends AppCompatActivity {
 			public void onNothingSelected(AdapterView<?> parent) {
 				mSupplierContact = ProductEntry.SUPPLIER_1; // Supplier 1 email ID
 			}
-		});*/
+		});
+	}
+
+	private void saveProduct() {
+		// Read from input fields
+		// Use trim to eliminate leading or trailing white space
+		String productDesc = mProductDescEditText.getText().toString().trim();
+		String productQuantity = mProductQuantityEditText.getText().toString().trim();
+		String productPrice = mProductPriceEditText.getText().toString().trim();
+		String productSupplier = mProductSupplierEditText.getText().toString().trim();
+
+		// Create a ContentValues object where column names are the keys,
+		// and pet attributes from the editor are the values.
+		ContentValues values = new ContentValues();
+		values.put(ProductEntry.COLUMN_PRODUCT_DESC, productDesc);
+		values.put(ProductEntry.COLUMN_PRODUCT_SUPPLIER, productSupplier);
+		values.put(ProductEntry.COLUMN_PRODUCT_SUPPLIER_CONTACT, mSupplierContact);
+
+		// If the quantity is not provided by the user, don't try to parse the string into an
+		// integer value. Use 0 by default.
+		int quantity = 0;
+		if (!TextUtils.isEmpty(productQuantity)) {
+			quantity = Integer.parseInt(productQuantity);
+		}
+		values.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, quantity);
+
+		// If the quantity is not provided by the user, don't try to parse the string into an
+		// integer value.
+		if (!TextUtils.isEmpty(productPrice)) {
+			int price = Integer.parseInt(productPrice);
+			values.put(ProductEntry.COLUMN_PRODUCT_PRICE, price);
+		} else {
+			Toast.makeText(
+					EditorActivity.this,
+					getString(R.string.editor_save_product_no_price),
+					Toast.LENGTH_SHORT)
+					.show();
+		}
+
+		// Insert new product into database
+		getContentResolver().insert(ProductEntry.CONTENT_URI, values);
+
 	}
 
 	public void decreaseQuantity(View view) {
 		// Get text from quantity field and parse as an integer
-		int quantity = Integer.parseInt(mProductQuantity.getText().toString().trim());
+		int quantity = Integer.parseInt(mProductQuantityEditText.getText().toString().trim());
 
 		// Check for negative quantity
 		if (quantity > 0) {
 			// Quantity is not zero.
 			// So, decrease quantity by 1.
 			quantity--;
-			mProductQuantity.setText(String.valueOf(quantity));
+			mProductQuantityEditText.setText(String.valueOf(quantity));
 		} else {
 			// The product is currently not in stock and cannot be decreased.
 			// Display message to the user that the quantity cannot be less than zero.
@@ -139,12 +194,12 @@ public class EditorActivity extends AppCompatActivity {
 
 	public void increaseQuantity(View view) {
 		// Get text from quantity field and parse as an integer
-		int quantity = Integer.parseInt(mProductQuantity.getText().toString().trim());
+		int quantity = Integer.parseInt(mProductQuantityEditText.getText().toString().trim());
 
 		// Decrease quantity by 1
 		quantity++;
 
 		// Set the revised quantity on the quantity field
-		mProductQuantity.setText(String.valueOf(quantity));
+		mProductQuantityEditText.setText(String.valueOf(quantity));
 	}
 }

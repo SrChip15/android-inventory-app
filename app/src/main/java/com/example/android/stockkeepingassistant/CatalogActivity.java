@@ -1,12 +1,25 @@
 package com.example.android.stockkeepingassistant;
 
+import android.app.LoaderManager.LoaderCallbacks;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.ListView;
 
-public class CatalogActivity extends AppCompatActivity {
+import com.example.android.stockkeepingassistant.data.ProductContract.ProductEntry;
+
+public class CatalogActivity
+		extends AppCompatActivity
+		implements LoaderCallbacks<Cursor> {
+
+	private ProductCursorAdapter mCursorAdapter;
+
+	private static final int PRODUCT_LOADER = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -24,5 +37,53 @@ public class CatalogActivity extends AppCompatActivity {
 				startActivity(intent);
 			}
 		});
+
+		// Find the ListView which will be populated with the pet data
+		ListView productListView = (ListView) findViewById(R.id.list);
+
+		// Find and set empty view on the ListView, so that it only shows when the list has 0 items.
+		View emptyView = findViewById(R.id.empty_view);
+		productListView.setEmptyView(emptyView);
+
+		// Setup an Adapter to create a list item for each row of product data in the Cursor.
+		mCursorAdapter = new ProductCursorAdapter(CatalogActivity.this, null);
+		productListView.setAdapter(mCursorAdapter);
+
+
+		// Kick off the loader
+		getLoaderManager().initLoader(PRODUCT_LOADER, null, this);
+
+	}
+
+	@Override
+	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+		// Define a projection that specifies the columns from the table we care about.
+		String[] projection = {
+				ProductEntry._ID,
+				ProductEntry.COLUMN_PRODUCT_DESC,
+				ProductEntry.COLUMN_PRODUCT_QUANTITY,
+				ProductEntry.COLUMN_PRODUCT_PRICE
+		};
+
+		// This loader will execute the ContentProvider's query method on a background thread
+		return new CursorLoader(CatalogActivity.this,           // Parent activity context
+				ProductEntry.CONTENT_URI,                       // Provider content URI to query
+				projection,                                     // Columns to include in the resulting Cursor
+				null,                                           // No selection clause
+				null,                                           // No selection arguments
+				null);                                          // Default sort order
+	}
+
+	@Override
+	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+		// Update Adapter with this new cursor containing updated product data
+		mCursorAdapter.swapCursor(data);
+	}
+
+	@Override
+	public void onLoaderReset(Loader<Cursor> loader) {
+		// Loader is being destroyed or the data is no longer current.
+		// Clear out adapter's reference to the cursor, prevents memory leaks
+		mCursorAdapter.swapCursor(null);
 	}
 }
