@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- These are the options displayed in the supplier contact drop-down Spinner -->
+    <string-array name="array_supplier_contact_option">
+        <item>@string/supplier_1</item>
+        <item>@string/supplier_2</item>
+        <item>@string/supplier_3</item>
+        <item>@string/supplier_4</item>
+        <item>@string/supplier_5</item>
+        <item>@string/supplier_6</item>
+        <item>@string/supplier_7</item>
+        <item>@string/supplier_8</item>
+        <item>@string/supplier_9</item>
+        <item>@string/supplier_10</item>
+    </string-array>
+</resources>

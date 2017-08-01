@@ -4,4 +4,56 @@
 
     <!-- Label for editor menu option to save pet and leave editor [CHAR LIMIT=20] -->
     <string name="action_save">Save</string>
+
+    <!-- Label for editor overflow menu option that deletes the current pet [CHAR LIMIT=20] -->
+    <string name="action_delete">Delete</string>
+
+    <!-- Text hint for name field in the editor [CHAR LIMIT=30] -->
+    <string name="hint_product_name">Name</string>
+
+    <!-- Label for overview category of attributes in the editor [CHAR LIMIT=30] -->
+    <string name="category_overview">Overview</string>
+
+    <!-- Text hint for product quantity field in the editor [CHAR LIMIT=30] -->
+    <string name="hint_product_quantity">Quantity</string>
+
+    <!-- Label for supplier 1 contact dropdown menu option [CHAR LIMIT=20] -->
+    <string name="supplier_1">supplier_1</string>
+
+    <!-- Label for supplier 2 contact dropdown menu option [CHAR LIMIT=20] -->
+    <string name="supplier_2">supplier_2</string>
+
+    <!-- Label for supplier 3 contact dropdown menu option [CHAR LIMIT=20] -->
+    <string name="supplier_3">supplier_3</string>
+
+    <!-- Label for supplier 4 contact dropdown menu option [CHAR LIMIT=20] -->
+    <string name="supplier_4">supplier_4</string>
+
+    <!-- Label for supplier 5 contact dropdown menu option [CHAR LIMIT=20] -->
+    <string name="supplier_5">supplier_5</string>
+
+    <!-- Label for supplier 6 contact dropdown menu option [CHAR LIMIT=20] -->
+    <string name="supplier_6">supplier_6</string>
+
+    <!-- Label for supplier 7 contact dropdown menu option [CHAR LIMIT=20] -->
+    <string name="supplier_7">supplier_7</string>
+
+    <!-- Label for supplier 8 contact dropdown menu option [CHAR LIMIT=20] -->
+    <string name="supplier_8">supplier_8</string>
+
+    <!-- Label for supplier 9 contact dropdown menu option [CHAR LIMIT=20] -->
+    <string name="supplier_9">supplier_9</string>
+
+    <!-- Label for supplier 10 contact dropdown menu option [CHAR LIMIT=20] -->
+    <string name="supplier_10">supplier_10</string>
+
+
+    <string name="category_supplier">Supplier</string>
+    <string name="hint_product_supplier_name">Name of Supplier</string>
+    <string name="hint_product_supplier_contact">Supplier\'s email</string>
+    <string name="category_supplier_contact">Supplier\'s Email</string>
+    <string name="editor_quantity_decrement">-</string>
+    <string name="editor_quantity_increment">+</string>
+    <string name="editor_order_more">order more</string>
+    <string name="editor_decrement_button_negative">Product quantity cannot be less than zero</string>
 </resources>
