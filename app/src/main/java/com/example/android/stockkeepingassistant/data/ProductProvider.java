@@ -231,6 +231,7 @@ public class ProductProvider extends ContentProvider {
 	private Uri insertProduct(Uri uri, ContentValues contentValues) {
 		// Get values from contentValues to validate
 		String desc = contentValues.getAsString(ProductEntry.COLUMN_PRODUCT_DESC);
+		String imageUri = contentValues.getAsString(ProductEntry.COLUMN_PRODUCT_IMAGE); /* Not a required value */
 		Integer quantity = contentValues.getAsInteger(ProductEntry.COLUMN_PRODUCT_QUANTITY);
 		Integer price = contentValues.getAsInteger(ProductEntry.COLUMN_PRODUCT_PRICE);
 		String supplier = contentValues.getAsString(ProductEntry.COLUMN_PRODUCT_SUPPLIER);

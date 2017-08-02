@@ -8,11 +8,16 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,14 +25,23 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.android.stockkeepingassistant.data.ProductContract.ProductEntry;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+
 public class EditorActivity
 		extends AppCompatActivity
 		implements LoaderCallbacks<Cursor> {
+
+	/**
+	 * Tag for the log messages
+	 */
+	public static final String LOG_TAG = EditorActivity.class.getSimpleName();
 
 	private Spinner mSupplierContactSpinner;
 
@@ -42,6 +56,14 @@ public class EditorActivity
 	private EditText mProductSupplierEditText;
 
 	private Button mOrderMoreButton;
+
+	private ImageView mProductImage;
+
+	private Button mProductImageUploadButton;
+
+	private static final int PICK_IMG_CODE = 1;
+
+	private byte[] mImage = null;
 
 	/**
 	 * Content URI for the existing product (null if it's a new product)
@@ -64,6 +86,8 @@ public class EditorActivity
 		mProductSupplierEditText = (EditText) findViewById(R.id.editor_product_supplier_name);
 		mSupplierContactSpinner = (Spinner) findViewById(R.id.spinner_supplier_contact);
 		mOrderMoreButton = (Button) findViewById(R.id.editor_order_more);
+		mProductImage = (ImageView) findViewById(R.id.editor_product_image);
+		mProductImageUploadButton = (Button) findViewById(R.id.editor_upload_image_button);
 		// Set default text on quantity field
 		mProductQuantityEditText.setText(String.valueOf(0));
 
@@ -77,6 +101,9 @@ public class EditorActivity
 			// Set appropriate title
 			setTitle(R.string.editor_detailed_mode_title);
 
+			// Remove upload photo button from view
+			mProductImageUploadButton.setVisibility(View.GONE);
+
 			// Kick-off loader to retrieve existing product information
 			getLoaderManager().initLoader(EXISTING_PRODUCT_LOADER, null, EditorActivity.this);
 		} else {
@@ -89,6 +116,9 @@ public class EditorActivity
 
 			// Remove "order more" button for new product
 			mOrderMoreButton.setVisibility(View.GONE);
+
+			// Remove product image view
+			//mProductImage.setVisibility(View.GONE);
 		}
 	}
 
@@ -224,6 +254,16 @@ public class EditorActivity
 		}
 		values.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, quantity);
 
+		// Check if product image has been provided and if provided add the image URI as
+		// string to the database
+		if (mImage != null) {
+			// Product image is provided
+			values.put(ProductEntry.COLUMN_PRODUCT_IMAGE, mImage);
+
+			// Clear current item's image URI
+			mImage = null;
+		}
+
 		// If the quantity is not provided by the user, don't try to parse the string into an
 		// integer value.
 		if (!TextUtils.isEmpty(productPrice)) {
@@ -240,6 +280,8 @@ public class EditorActivity
 		if (mCurrentProductUri == null) {
 			// This is a NEW product, so insert a new product into the provider,
 			// returning the content URI for the new product.
+			// TODO: implement data validator and display toasts to prompt user that for new product all fields are required fields
+			// without information app crashes and throws illegal argument exception
 			Uri newUri = getContentResolver().insert(ProductEntry.CONTENT_URI, values);
 
 			// Show a toast message depending on whether or not the insertion was successful.
@@ -352,7 +394,7 @@ public class EditorActivity
 
 		// Set email ID on the intent
 		emailIntent.setData(Uri.parse("mailto:")); // only email apps should handle this
-		emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[] {supplierEmail});
+		emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{supplierEmail});
 		emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
 
 		// Launch the activity
@@ -424,6 +466,7 @@ public class EditorActivity
 		String[] projection = {
 				ProductEntry._ID,
 				ProductEntry.COLUMN_PRODUCT_DESC,
+				ProductEntry.COLUMN_PRODUCT_IMAGE,
 				ProductEntry.COLUMN_PRODUCT_QUANTITY,
 				ProductEntry.COLUMN_PRODUCT_PRICE,
 				ProductEntry.COLUMN_PRODUCT_SUPPLIER,
@@ -450,6 +493,7 @@ public class EditorActivity
 		if (cursor.moveToFirst()) {
 			// Find the columns of product attributes that we're interested in
 			int descColumnIndex = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_DESC);
+			int imageColumnIndex = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_IMAGE);
 			int quantityColumnIndex = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_QUANTITY);
 			int priceColumnIndex = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_PRICE);
 			int supplierColumnIndex = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_SUPPLIER);
@@ -457,6 +501,7 @@ public class EditorActivity
 
 			// Extract out the value from the Cursor for the given column index
 			String desc = cursor.getString(descColumnIndex);
+			byte[] byteImage = cursor.getBlob(imageColumnIndex);
 			int quantity = cursor.getInt(quantityColumnIndex);
 			int price = cursor.getInt(priceColumnIndex);
 			String supplier = cursor.getString(supplierColumnIndex);
@@ -467,6 +512,17 @@ public class EditorActivity
 			mProductQuantityEditText.setText(String.valueOf(quantity));
 			mProductPriceEditText.setText(String.valueOf(price));
 			mProductSupplierEditText.setText(String.valueOf(supplier));
+
+			// Initialize var to hold product image
+			if (byteImage != null) {
+				Bitmap image;
+
+				// Get image from gallery
+				image = getImage(byteImage);
+
+				// Set image on product image view
+				mProductImage.setImageBitmap(image);
+			}
 
 			// Supplier contact information is a spinner drop down.
 			// Map the constant value from database into one of the drop-down options
@@ -513,5 +569,99 @@ public class EditorActivity
 		mProductPriceEditText.setText("");
 		mProductSupplierEditText.setText("");
 		mSupplierContactSpinner.setSelection(0);
+		mProductImage.setImageBitmap(null);
+	}
+
+	/**
+	 * The method is invoked when the user clicks the upload product image button. The
+	 * product image is expected to be saved to the device's gallery.
+	 */
+	public void uploadProductImageClick(View view) {
+		// Create intent to pick image from gallery
+		Intent imageFromGalleryIntent = new Intent(
+				Intent.ACTION_PICK,
+				android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+
+		// Launch activity.
+		// Starts the device's gallery in "select photo" mode
+		startActivityForResult(imageFromGalleryIntent, PICK_IMG_CODE);
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
+		super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
+		switch (requestCode) {
+			case PICK_IMG_CODE:
+				if (resultCode == RESULT_OK) {
+					Uri selectedImage = imageReturnedIntent.getData();
+					String[] filePathColumn = {MediaStore.Images.Media.DATA};
+
+					Cursor cursor = getContentResolver().query(
+							selectedImage, filePathColumn, null, null, null);
+					cursor.moveToFirst();
+
+					int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+					String filePath = cursor.getString(columnIndex);
+					cursor.close();
+
+					Log.v(LOG_TAG, "Found Image at: " + filePath);
+
+					Bitmap yourSelectedImage = null;
+
+					try {
+						yourSelectedImage = decodeUri(selectedImage);
+					} catch (FileNotFoundException e) {
+						e.printStackTrace();
+					}
+
+					// Display image to user within new product edit window
+					mProductImage.setImageBitmap(yourSelectedImage);
+
+					// Save the image to global variable image and clear it out after saving the
+					// current product item
+					mImage = getBytes(yourSelectedImage);
+				}
+		}
+	}
+
+	private Bitmap decodeUri(Uri selectedImage) throws FileNotFoundException {
+
+		// Decode image size
+		BitmapFactory.Options o = new BitmapFactory.Options();
+		o.inJustDecodeBounds = true;
+		BitmapFactory.decodeStream(getContentResolver().openInputStream(selectedImage), null, o);
+
+		// The new size we want to scale to
+		final int REQUIRED_SIZE = 140;
+
+		// Find the correct scale value. It should be the power of 2.
+		int width_tmp = o.outWidth, height_tmp = o.outHeight;
+		int scale = 1;
+		while (true) {
+			if (width_tmp / 2 < REQUIRED_SIZE
+					|| height_tmp / 2 < REQUIRED_SIZE) {
+				break;
+			}
+			width_tmp /= 2;
+			height_tmp /= 2;
+			scale *= 2;
+		}
+
+		// Decode with inSampleSize
+		BitmapFactory.Options o2 = new BitmapFactory.Options();
+		o2.inSampleSize = scale;
+		return BitmapFactory.decodeStream(getContentResolver().openInputStream(selectedImage), null, o2);
+	}
+
+	// convert from bitmap to byte array
+	private byte[] getBytes(Bitmap bitmap) {
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		bitmap.compress(CompressFormat.PNG, 0, stream);
+		return stream.toByteArray();
+	}
+
+	// convert from byte array to bitmap
+	private Bitmap getImage(byte[] image) {
+		return BitmapFactory.decodeByteArray(image, 0, image.length);
 	}
 }
