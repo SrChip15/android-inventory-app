@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="24dp"
+    android:padding="@dimen/large_margin"
     tools:context="com.example.android.stockkeepingassistant.EditorActivity">
 
     <!-- Overview category -->
@@ -26,7 +26,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="2"
             android:orientation="vertical"
-            android:paddingLeft="4dp">
+            android:paddingLeft="@dimen/small_margin">
 
             <!-- Product image container -->
             <LinearLayout
@@ -37,8 +37,8 @@
                 <!-- Prodct image for existing product -->
                 <ImageView
                     android:id="@+id/editor_product_image"
-                    android:layout_width="120dp"
-                    android:layout_height="120dp"
+                    android:layout_width="@dimen/product_image_view_dims"
+                    android:layout_height="@dimen/product_image_view_dims"
                     tools:src="@drawable/mech_pencil"/>
 
                 <!-- Upload product image prompt -->
@@ -67,7 +67,7 @@
 
                 <Button
                     android:id="@+id/editor_quantity_decrement"
-                    android:layout_width="50dp"
+                    android:layout_width="@dimen/quantity_modifiers_button_width"
                     android:layout_height="wrap_content"
                     android:onClick="decreaseQuantity"
                     android:text="@string/editor_quantity_decrement"/>
@@ -84,7 +84,7 @@
 
                 <Button
                     android:id="@+id/editor_quantity_increment"
-                    android:layout_width="50dp"
+                    android:layout_width="@dimen/quantity_modifiers_button_width"
                     android:layout_height="wrap_content"
                     android:onClick="increaseQuantity"
                     android:text="@string/editor_quantity_increment"/>
@@ -151,17 +151,18 @@
             <Spinner
                 android:id="@+id/spinner_supplier_contact"
                 android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:paddingRight="16dp"
+                android:layout_height="@dimen/spinner_height"
+                android:paddingRight="@dimen/medium_margin"
                 android:spinnerMode="dropdown"/>
         </LinearLayout>
     </LinearLayout>
 
+    <!-- Button to order more from product supplier -->
     <Button
         android:id="@+id/editor_order_more"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="120dp"
+        android:layout_marginTop="@dimen/top_margin_order_more_button"
         android:onClick="orderMore"
         android:text="@string/editor_order_more"/>
 

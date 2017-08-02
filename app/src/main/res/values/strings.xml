@@ -2,10 +2,10 @@
     <!-- Name for the application [CHAR LIMIT=12] -->
     <string name="app_name">StockKeeper</string>
 
-    <!-- Label for editor menu option to save pet and leave editor [CHAR LIMIT=20] -->
+    <!-- Label for editor menu option to save product and leave editor [CHAR LIMIT=20] -->
     <string name="action_save">Save</string>
 
-    <!-- Label for editor overflow menu option that deletes the current pet [CHAR LIMIT=20] -->
+    <!-- Label for editor overflow menu option that deletes the current product [CHAR LIMIT=20] -->
     <string name="action_delete">Delete</string>
 
     <!-- Text hint for name field in the editor [CHAR LIMIT=30] -->
@@ -47,28 +47,55 @@
     <!-- Label for supplier 10 contact dropdown menu option [CHAR LIMIT=20] -->
     <string name="supplier_10">supplier_10</string>
 
-
+    <!-- Label for supplier category of attributes in the editor [CHAR LIMIT=30] -->
     <string name="category_supplier">Supplier</string>
+
+    <!-- Text hint for product supplier name field in the editor [CHAR LIMIT=30] -->
     <string name="hint_product_supplier_name">Name of Supplier</string>
+
+    <!-- Text hint for product supplier contact field in the editor [CHAR LIMIT=30] -->
     <string name="hint_product_supplier_contact">Supplier\'s email</string>
+
+    <!-- Label for supplier's email category attribute in the editor [CHAR LIMIT=30] -->
     <string name="category_supplier_contact">Supplier\'s Email</string>
+
+    <!-- Decrement product quantity button text in EditorActivity -->
     <string name="editor_quantity_decrement">-</string>
+
+    <!-- Increment product quantity button text in EditorActivity -->
     <string name="editor_quantity_increment">+</string>
+
+    <!-- Order more button text -->
     <string name="editor_order_more">order more</string>
+
     <string name="editor_decrement_button_negative">Product quantity cannot be less than zero</string>
+
     <string name="unsupported_insertion">Insertion is not supported for</string>
+
     <string name="insert_product_no_name">Product needs a description</string>
+
     <string name="insert_product_no_quantity">Quantity of product is required</string>
+
     <string name="insert_product_no_price">Product requires price</string>
+
     <string name="insert_product_no_supplier">Product requires a supplier</string>
+
     <string name="insert_product_no_supplier_contact">Product requires suppplier contact information</string>
+
     <string name="insert_failure">Failed to insert row for</string>
+
     <string name="delete_product_failure">Deletion is not supported for:</string>
+
     <string name="update_product_no_desc">Product requires a description</string>
+
     <string name="update_product_no_quantity">Product requires quantity</string>
-    <string name="update_product_no_price">Product requires price information</string>
+
+    <string name="update_product_no_price">Product requires valid price information</string>
+
     <string name="update_product_no_supplier">Products requires supplier information</string>
+
     <string name="update_product_no_supplier_contact">Products requires supplier contact information</string>
+
     <string name="update_product_failure">Update is not supported for</string>
 
     <!-- Text for empty view with instructions to the user on how to populate the database  -->
@@ -76,15 +103,28 @@
         No products to display.\n
         Press the below button enter new product information and save it to the database.
     </string>
+
     <string name="editor_save_product_no_price">Price cannot be left blank!</string>
+
     <string name="hint_product_price">Price</string>
+
     <string name="catalog_desc_header">Description</string>
+
     <string name="catalog_quantity_header">Quantity</string>
+
     <string name="catalog_price_header">Price</string>
+
     <string name="provider_type_mismatch_part1">Unknown URI</string>
+
     <string name="provider_type_mismatch_part2">with match</string>
+
+    <!-- Title for the activity to edit an existing product [CHAR LIMIT=20] -->
     <string name="editor_detailed_mode_title">Product Information</string>
+
+    <!-- Title for the activity to add a new product [CHAR LIMIT=20] -->
     <string name="editor_new_product_mode_title">Add Product</string>
+
+    <!-- Subject for email to product supplier demanding more supplies [CHAR LIMIT=30] -->
     <string name="editor_order_more_email_subject">Require Shipment</string>
 
     <!-- Toast message in editor when new product has failed to be inserted [CHAR LIMIT=NONE] -->
@@ -113,18 +153,18 @@
 
     <!-- Toast message in editor when current product was successfully deleted [CHAR LIMIT=NONE] -->
     <string name="editor_delete_product_successful">Product deleted</string>
+
+    <!-- Sell button for individual products displayed as a list -->
     <string name="list_item_sell_button">sell</string>
-    <string name="list_item_sale_successful">Item sold successfully!</string>
+
     <string name="list_item_qty_not_sufficient">Currently out of stock!</string>
 
     <!-- Price label in list item view to tag the product price information [CHAR LIMIT=20] -->
     <string name="list_item_price_label">Price: $</string>
 
-    <!-- Multiple items were updated in the database despite the usage of single product content URI -->
-    <string name="list_item_more_than_one_sale">Something went wrong!</string>
-
     <!-- Log message for multiple item update when single product content URI was provided -->
     <string name="list_item_sell_error">Multiple match for URI:</string>
+
     <string name="editor_upload_product_image">upload product image</string>
 
     <!-- Dialog message when user is leaving editor but hasn't saved changes [CHAR LIMIT=NONE] -->
@@ -133,7 +173,13 @@
     <!-- Dialog button text for the option to discard a user's changes [CHAR LIMIT=20] -->
     <string name="discard">Discard</string>
 
-    <!-- Dialog button text for the option to keep editing the current pet [CHAR LIMIT=20] -->
+    <!-- Dialog button text for the option to keep editing the current product [CHAR LIMIT=20] -->
     <string name="keep_editing">Keep Editing</string>
+
+    <!-- Label for editor menu option to add/edit product image [CHAR LIMIT=20] -->
+    <string name="action_add_image">Add/Edit Image</string>
+
+    <!-- Toast message to the user when product image for existing product is added/edited [CHAR LIMIT=30] -->
+    <string name="editor_product_image_update_success">Product image successfully updated</string>
 
 </resources>

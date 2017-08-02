@@ -5,7 +5,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +15,9 @@ import android.widget.Toast;
 
 import com.example.android.stockkeepingassistant.data.ProductContract.ProductEntry;
 
-public class ProductCursorAdapter extends CursorAdapter implements View.OnClickListener {
+public class ProductCursorAdapter
+		extends CursorAdapter
+		implements View.OnClickListener {
 
 	private LayoutInflater mInflater;
 
@@ -128,28 +129,8 @@ public class ProductCursorAdapter extends CursorAdapter implements View.OnClickL
 			// Update quantity in database.
 			// As the notificatin URI is set in the content provider, the update query will
 			// automatically trigger view refresh
-			int one = view.getContext().getContentResolver().update(itemUri, updatedValues, null, null);
+			view.getContext().getContentResolver().update(itemUri, updatedValues, null, null);
 
-			// Typically, only one item should be modified
-			if (one == 1) {
-				// Item quantity was correctly modified
-				Toast.makeText(
-						view.getContext(),
-						view.getContext().getString(R.string.list_item_sale_successful),
-						Toast.LENGTH_SHORT
-				);
-			} else {
-				// Something has gone wrong terribly. More than one item was modified despite
-				// content uri for a single product was provided. This would never happen but just
-				// being thorough
-				Toast.makeText(
-						view.getContext(),
-						view.getContext().getString(R.string.list_item_more_than_one_sale),
-						Toast.LENGTH_SHORT
-				)
-						.show();
-				Log.v(LOG_TAG, view.getContext().getString(R.string.list_item_sell_error) + itemUri);
-			}
 		} else {
 			// Stock unavailable
 			// Display stock status to user

@@ -229,9 +229,9 @@ public class ProductProvider extends ContentProvider {
 	}
 
 	private Uri insertProduct(Uri uri, ContentValues contentValues) {
-		// Get values from contentValues to validate
+		// Get values from contentValues to validate.
+		// Product image is not a required field. So, it is not validated here.
 		String desc = contentValues.getAsString(ProductEntry.COLUMN_PRODUCT_DESC);
-		String imageUri = contentValues.getAsString(ProductEntry.COLUMN_PRODUCT_IMAGE); /* Not a required value */
 		Integer quantity = contentValues.getAsInteger(ProductEntry.COLUMN_PRODUCT_QUANTITY);
 		Integer price = contentValues.getAsInteger(ProductEntry.COLUMN_PRODUCT_PRICE);
 		String supplier = contentValues.getAsString(ProductEntry.COLUMN_PRODUCT_SUPPLIER);
@@ -330,6 +330,8 @@ public class ProductProvider extends ContentProvider {
 				throw new IllegalArgumentException(getContext().getString(R.string.update_product_no_supplier_contact));
 			}
 		}
+
+		// Product image is not being validated because it is not a required field
 
 		// When nothing is passed via the ContentValues to be updated
 		// Do not perform any database operation

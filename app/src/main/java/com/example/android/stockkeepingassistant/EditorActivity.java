@@ -44,26 +44,34 @@ public class EditorActivity
 	 */
 	public static final String LOG_TAG = EditorActivity.class.getSimpleName();
 
+	/** Spinner for choosing supplier contact */
 	private Spinner mSupplierContactSpinner;
 
+	/** Supplier email ID. Possible values are available in the ProductContract.java file */
 	private String mSupplierContact;
 
+	/** EditText field for product description */
 	private EditText mProductDescEditText;
 
+	/** EditText field for product quantity information */
 	private EditText mProductQuantityEditText;
 
+	/** EditText field for product price information */
 	private EditText mProductPriceEditText;
 
+	/** EditText field for product supplier's name */
 	private EditText mProductSupplierEditText;
 
-	private Button mOrderMoreButton;
-
+	/** EditText field for product image */
 	private ImageView mProductImage;
 
+	/** Button to upload product image */
 	private Button mProductImageUploadButton;
 
+	/** Intent identifier */
 	private static final int PICK_IMG_CODE = 1;
 
+	/** Product image as byte array to be stored in database */
 	private byte[] mImage = null;
 
 	/**
@@ -88,6 +96,7 @@ public class EditorActivity
 	 */
 	private Uri mCurrentProductUri;
 
+	/** Identifier for the product data loader */
 	private static final int EXISTING_PRODUCT_LOADER = 1;
 
 	@Override
@@ -103,7 +112,7 @@ public class EditorActivity
 		mProductPriceEditText = (EditText) findViewById(R.id.editor_product_price);
 		mProductSupplierEditText = (EditText) findViewById(R.id.editor_product_supplier_name);
 		mSupplierContactSpinner = (Spinner) findViewById(R.id.spinner_supplier_contact);
-		mOrderMoreButton = (Button) findViewById(R.id.editor_order_more);
+		Button mOrderMoreButton = (Button) findViewById(R.id.editor_order_more);
 		mProductImage = (ImageView) findViewById(R.id.editor_product_image);
 		mProductImageUploadButton = (Button) findViewById(R.id.editor_upload_image_button);
 		Button increaseQuantityButton = (Button) findViewById(R.id.editor_quantity_increment);
@@ -117,6 +126,7 @@ public class EditorActivity
 		mProductPriceEditText.setOnTouchListener(mTouchListener);
 		mProductSupplierEditText.setOnTouchListener(mTouchListener);
 		mSupplierContactSpinner.setOnTouchListener(mTouchListener);
+		mProductImageUploadButton.setOnTouchListener(mTouchListener);
 		increaseQuantityButton.setOnTouchListener(mTouchListener);
 		decreaseQuantityButton.setOnTouchListener(mTouchListener);
 
@@ -127,8 +137,11 @@ public class EditorActivity
 		setupSpinner();
 
 
-		// Identify the mode in which this activity is opened
+		// If the list item was clicked then the product URI of the list item is set on the intent
+		// that triggered the editor activity
 		mCurrentProductUri = getIntent().getData();
+
+		// Determine the mode in which the editor activity was launched
 		if (mCurrentProductUri != null) {
 			// Detailed/Edit view mode active. Existing product is being viewed
 			// Set appropriate title
@@ -152,7 +165,7 @@ public class EditorActivity
 			mOrderMoreButton.setVisibility(View.GONE);
 
 			// Remove product image view
-			//mProductImage.setVisibility(View.GONE);
+			mProductImage.setVisibility(View.GONE);
 		}
 	}
 
@@ -163,10 +176,15 @@ public class EditorActivity
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		super.onPrepareOptionsMenu(menu);
-		// If this is a new product, hide the "Delete" menu item.
+		// This is a new product
 		if (mCurrentProductUri == null) {
-			MenuItem menuItem = menu.findItem(R.id.action_delete);
-			menuItem.setVisible(false);
+			// Hide the "Delete" menu item
+			MenuItem deleteMenuItem = menu.findItem(R.id.action_delete);
+			deleteMenuItem.setVisible(false);
+
+			// Hide the "Add Image" menu item
+			MenuItem addImageMenuItem = menu.findItem(R.id.action_add_image);
+			addImageMenuItem.setVisible(false);
 		}
 		return true;
 	}
@@ -193,6 +211,11 @@ public class EditorActivity
 			case R.id.action_delete:
 				// Pop up confirmation dialog for deletion
 				showDeleteConfirmationDialog();
+				return true;
+			case R.id.action_add_image:
+				// Add image if default image is being displayed.
+				// Edit image if a better image is available.
+				addOrEditImage();
 				return true;
 			// Respond to a click on the "Up" arrow button in the app bar
 			case android.R.id.home:
@@ -248,7 +271,7 @@ public class EditorActivity
 	}
 
 	/**
-	 * Setup the dropdown spinner that allows the user to select the gender of the pet.
+	 * Setup the dropdown spinner that allows the user to select the supplier's email.
 	 */
 	private void setupSpinner() {
 		// Create adapter for spinner. The list options are from the String array it will use
@@ -308,17 +331,8 @@ public class EditorActivity
 		String productPrice = mProductPriceEditText.getText().toString().trim();
 		String productSupplier = mProductSupplierEditText.getText().toString().trim();
 
-		// Check if this is supposed to be a new pet
-		// and check if all the fields in the editor are blank
-		if (TextUtils.isEmpty(productDesc) && TextUtils.isEmpty(productQuantity) &&
-				TextUtils.isEmpty(productPrice) && TextUtils.isEmpty(productSupplier)) {
-			// Since no fields were modified, we can return early without creating a new product.
-			// No need to create ContentValues and no need to do any ContentProvider operations.
-			return;
-		}
-
 		// Create a ContentValues object where column names are the keys,
-		// and pet attributes from the editor are the values.
+		// and product attributes from the editor are the values.
 		ContentValues values = new ContentValues();
 		values.put(ProductEntry.COLUMN_PRODUCT_DESC, productDesc);
 		values.put(ProductEntry.COLUMN_PRODUCT_SUPPLIER, productSupplier);
@@ -332,16 +346,6 @@ public class EditorActivity
 		}
 		values.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, quantity);
 
-		// Check if product image has been provided and if provided add the image URI as
-		// string to the database
-		if (mImage != null) {
-			// Product image is provided
-			values.put(ProductEntry.COLUMN_PRODUCT_IMAGE, mImage);
-
-			// Clear current item's image URI
-			mImage = null;
-		}
-
 		// If the quantity is not provided by the user, don't try to parse the string into an
 		// integer value.
 		if (!TextUtils.isEmpty(productPrice)) {
@@ -353,26 +357,50 @@ public class EditorActivity
 					getString(R.string.editor_save_product_no_price),
 					Toast.LENGTH_SHORT)
 					.show();
+
+			// Bail early
+			return;
+		}
+
+		// Check if product image has been provided and if provided add the image URI as
+		// string to the database
+		if (mImage != null) {
+			// Product image is provided
+			values.put(ProductEntry.COLUMN_PRODUCT_IMAGE, mImage);
+
+			// Clear current item's image URI
+			mImage = null;
 		}
 
 		if (mCurrentProductUri == null) {
 			// This is a NEW product, so insert a new product into the provider,
 			// returning the content URI for the new product.
-			// TODO: implement data validator and display toasts to prompt user that for new product all fields are required fields
-			// without information app crashes and throws illegal argument exception
-			Uri newUri = getContentResolver().insert(ProductEntry.CONTENT_URI, values);
 
-			// Show a toast message depending on whether or not the insertion was successful.
-			if (newUri == null) {
-				// If the new content URI is null, then there was an error with insertion.
-				Toast.makeText(EditorActivity.this,
-						getString(R.string.editor_insert_product_failed),
-						Toast.LENGTH_SHORT)
-						.show();
+			// Check if this is supposed to be a new product
+			// and check if all the fields in the editor are blank
+			if (TextUtils.isEmpty(productDesc) || productDesc == null && TextUtils.isEmpty(productQuantity) || productQuantity == null &&
+					TextUtils.isEmpty(productPrice) || productPrice == null && TextUtils.isEmpty(productSupplier) || productSupplier == null) {
+				// Since no fields were modified, we can return early without creating a new product.
+				// No need to create ContentValues and no need to do any ContentProvider operations.
+
+				return;
+
 			} else {
-				// Otherwise, the insertion was successful and we can display a toast.
-				Toast.makeText(this, getString(R.string.editor_insert_product_successful),
-						Toast.LENGTH_SHORT).show();
+				// Validation is complete, so insert new product into database
+				Uri newUri = getContentResolver().insert(ProductEntry.CONTENT_URI, values);
+
+				// Show a toast message depending on whether or not the insertion was successful.
+				if (newUri == null) {
+					// If the new content URI is null, then there was an error with insertion.
+					Toast.makeText(EditorActivity.this,
+							getString(R.string.editor_insert_product_failed),
+							Toast.LENGTH_SHORT)
+							.show();
+				} else {
+					// Otherwise, the insertion was successful and we can display a toast.
+					Toast.makeText(this, getString(R.string.editor_insert_product_successful),
+							Toast.LENGTH_SHORT).show();
+				}
 			}
 		} else {
 			// Otherwise this is an EXISTING product, so update the product with content URI: mCurrentProductUri
@@ -481,8 +509,29 @@ public class EditorActivity
 		}
 	}
 
+	private void addOrEditImage() {
+		// Create intent
+		Intent imageFromGalleryIntent = new Intent(
+				Intent.ACTION_PICK,
+				android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+
+		// Launch activity.
+		// Starts the device's gallery in "select photo" mode
+		startActivityForResult(imageFromGalleryIntent, PICK_IMG_CODE);
+
+		// Add image to values
+		ContentValues editImageValue = new ContentValues();
+		editImageValue.put(ProductEntry.COLUMN_PRODUCT_IMAGE, mImage);
+
+		// update db
+		getContentResolver().update(mCurrentProductUri, editImageValue, null, null);
+
+		// Remove image associated with mImage
+		mImage = null;
+	}
+
 	/**
-	 * Prompt the user to confirm that they want to delete this pet.
+	 * Prompt the user to confirm that they want to delete this product.
 	 */
 	private void showDeleteConfirmationDialog() {
 		// Create an AlertDialog.Builder and set the message, and click listeners
@@ -492,13 +541,13 @@ public class EditorActivity
 		builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int id) {
 				// User clicked the "Delete" button, so delete the product.
-				deletePet();
+				deleteProduct();
 			}
 		});
 		builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int id) {
 				// User clicked the "Cancel" button, so dismiss the dialog
-				// and continue editing the pet.
+				// and continue editing the product.
 				if (dialog != null) {
 					dialog.dismiss();
 				}
@@ -511,9 +560,9 @@ public class EditorActivity
 	}
 
 	/**
-	 * Perform the deletion of the pet in the database.
+	 * Perform the deletion of the product in the database.
 	 */
-	private void deletePet() {
+	private void deleteProduct() {
 		// Only perform the delete if this is an existing product.
 		if (mCurrentProductUri != null) {
 			// Call the ContentResolver to delete the product at the given content URI.
@@ -566,7 +615,7 @@ public class EditorActivity
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		// Since the editor shows all product attributes, define a projection that contains
-		// all columns from the pet table
+		// all columns from the products table
 		String[] projection = {
 				ProductEntry._ID,
 				ProductEntry.COLUMN_PRODUCT_DESC,
@@ -579,7 +628,7 @@ public class EditorActivity
 
 		// This loader will execute the ContentProvider's query method on a background thread
 		return new CursorLoader(this,           // Parent activity context
-				mCurrentProductUri,             // Query the content URI for the current pet
+				mCurrentProductUri,             // Query the content URI for the current product
 				projection,                     // Columns to include in the resulting Cursor
 				null,                           // No selection clause
 				null,                           // No selection arguments
@@ -626,6 +675,11 @@ public class EditorActivity
 
 				// Set image on product image view
 				mProductImage.setImageBitmap(image);
+			} else {
+				// Product image does not exist.
+				// Set default image for product image. This image information is not saved to
+				// database, purely UI fix.
+				mProductImage.setImageResource(R.drawable.no_prod_img);
 			}
 
 			// Supplier contact information is a spinner drop down.
@@ -720,6 +774,22 @@ public class EditorActivity
 
 					// Display image to user within new product edit window
 					mProductImage.setImageBitmap(yourSelectedImage);
+					mProductImage.setVisibility(View.VISIBLE);
+
+					// If existing product is being updated
+					if (mCurrentProductUri != null) {
+						Toast.makeText(
+								EditorActivity.this,
+								getString(R.string.editor_product_image_update_success),
+								Toast.LENGTH_SHORT
+						)
+								.show();
+					}
+					// Product image information has changed, so set it to true
+					mProductHasChanged = true;
+
+					// Remove upload button from view
+					mProductImageUploadButton.setVisibility(View.GONE);
 
 					// Save the image to global variable image and clear it out after saving the
 					// current product item
@@ -757,14 +827,18 @@ public class EditorActivity
 		return BitmapFactory.decodeStream(getContentResolver().openInputStream(selectedImage), null, o2);
 	}
 
-	// convert from bitmap to byte array
+	/**
+	 * Helper method to conver bitmap to byte array
+	 */
 	private byte[] getBytes(Bitmap bitmap) {
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		bitmap.compress(CompressFormat.PNG, 0, stream);
 		return stream.toByteArray();
 	}
 
-	// convert from byte array to bitmap
+	/**
+	 * Helper method to convert byte array to bitmap
+	 */
 	private Bitmap getImage(byte[] image) {
 		return BitmapFactory.decodeByteArray(image, 0, image.length);
 	}

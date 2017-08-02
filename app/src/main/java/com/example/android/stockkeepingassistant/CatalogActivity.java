@@ -70,7 +70,6 @@ public class CatalogActivity
 		mCursorAdapter = new ProductCursorAdapter(CatalogActivity.this, null);
 		productListView.setAdapter(mCursorAdapter);
 
-
 		// Kick off the loader
 		getLoaderManager().initLoader(PRODUCT_LOADER, null, this);
 
@@ -106,11 +105,5 @@ public class CatalogActivity
 		// Loader is being destroyed or the data is no longer current.
 		// Clear out adapter's reference to the cursor, prevents memory leaks
 		mCursorAdapter.swapCursor(null);
-	}
-
-	public void sellItem(View view) {
-		getLoaderManager().getLoader(PRODUCT_LOADER);
-
-
 	}
 }

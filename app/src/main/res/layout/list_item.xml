@@ -6,12 +6,12 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
-    <!-- Container for Product description and price -->
+    <!-- Container for product description and price -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginLeft="8dp"
+        android:layout_marginBottom="@dimen/normal_margin"
+        android:layout_marginLeft="@dimen/normal_margin"
         android:layout_weight="2"
         android:orientation="vertical">
 
@@ -21,7 +21,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
-            android:textAppearance="?android:textAppearanceMedium"/>
+            android:textAppearance="?android:textAppearanceMedium"
+            android:textColor="@android:color/black"/>
 
         <!-- Product price field -->
         <TextView
@@ -44,13 +45,12 @@
     <!-- Sell button -->
     <Button
         android:id="@+id/list_item_sell_button"
-        android:layout_width="60dp"
-        android:layout_height="50dp"
+        android:layout_width="@dimen/sell_button_width"
+        android:layout_height="@dimen/sell_button_height"
         android:layout_gravity="center"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
+        android:layout_marginLeft="@dimen/medium_margin"
+        android:layout_marginRight="@dimen/medium_margin"
         android:focusable="false"
-        android:onClick="sellItem"
         android:text="@string/list_item_sell_button"/>
 
 </LinearLayout>

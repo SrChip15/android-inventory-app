@@ -1,4 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="fab_margin">16dp</dimen>
+    <!-- Small margin to decongest views -->
+    <dimen name="small_margin">4dp</dimen>
+
+    <!-- Used at places which do well with just a little margin -->
+    <dimen name="normal_margin">8dp</dimen>
+
+    <!-- Double of normal margin -->
+    <dimen name="medium_margin">16dp</dimen>
+
+    <!-- Large margins -->
+    <dimen name="large_margin">24dp</dimen>
+
+    <!-- Width for sell button in the list item view -->
+    <dimen name="sell_button_width">60dp</dimen>
+
+    <!-- Height for sell button in the list item view -->
+    <dimen name="sell_button_height">50dp</dimen>
+
+    <!-- Top margin for "order more" button in the editor activity in detailed view mode -->
+    <dimen name="top_margin_order_more_button">120dp</dimen>
+
+    <!-- Spinner height in EditorActivity -->
+    <dimen name="spinner_height">48dp</dimen>
+
+    <!-- Quantity modifying buttons' width -->
+    <dimen name="quantity_modifiers_button_width">50dp</dimen>
+
+    <!-- Dimensions of ImageView for product image in EditorActivity -->
+    <dimen name="product_image_view_dims">120dp</dimen>
+
 </resources>
