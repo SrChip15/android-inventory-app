@@ -20,6 +20,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -66,6 +67,23 @@ public class EditorActivity
 	private byte[] mImage = null;
 
 	/**
+	 * Boolean flag that keeps track of whether the product has been edited (true) or not (false)
+	 */
+	private boolean mProductHasChanged = false;
+
+	/**
+	 * OnTouchListener that listens for any user touches on a View, implying that they are modifying
+	 * the view, and we change the mProductHasChanged boolean to true.
+	 */
+	private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
+		@Override
+		public boolean onTouch(View view, MotionEvent motionEvent) {
+			mProductHasChanged = true;
+			return false;
+		}
+	};
+
+	/**
 	 * Content URI for the existing product (null if it's a new product)
 	 */
 	private Uri mCurrentProductUri;
@@ -88,11 +106,26 @@ public class EditorActivity
 		mOrderMoreButton = (Button) findViewById(R.id.editor_order_more);
 		mProductImage = (ImageView) findViewById(R.id.editor_product_image);
 		mProductImageUploadButton = (Button) findViewById(R.id.editor_upload_image_button);
+		Button increaseQuantityButton = (Button) findViewById(R.id.editor_quantity_increment);
+		Button decreaseQuantityButton = (Button) findViewById(R.id.editor_quantity_decrement);
+
+		// Setup OnTouchListeners on all the input fields, so we can determine if the user
+		// has touched or modified them. This will let us know if there are unsaved changes
+		// or not, if the user tries to leave the editor without saving.
+		mProductDescEditText.setOnTouchListener(mTouchListener);
+		mProductQuantityEditText.setOnTouchListener(mTouchListener);
+		mProductPriceEditText.setOnTouchListener(mTouchListener);
+		mProductSupplierEditText.setOnTouchListener(mTouchListener);
+		mSupplierContactSpinner.setOnTouchListener(mTouchListener);
+		increaseQuantityButton.setOnTouchListener(mTouchListener);
+		decreaseQuantityButton.setOnTouchListener(mTouchListener);
+
 		// Set default text on quantity field
 		mProductQuantityEditText.setText(String.valueOf(0));
 
 		// Setup spinner
 		setupSpinner();
+
 
 		// Identify the mode in which this activity is opened
 		mCurrentProductUri = getIntent().getData();
@@ -106,6 +139,7 @@ public class EditorActivity
 
 			// Kick-off loader to retrieve existing product information
 			getLoaderManager().initLoader(EXISTING_PRODUCT_LOADER, null, EditorActivity.this);
+
 		} else {
 			// New product view mode active.
 			// Set appropriate title
@@ -162,11 +196,55 @@ public class EditorActivity
 				return true;
 			// Respond to a click on the "Up" arrow button in the app bar
 			case android.R.id.home:
-				// Back to CatalogActivity
-				NavUtils.navigateUpFromSameTask(EditorActivity.this);
+				// If the product hasn't changed, continue with navigating up to parent activity
+				if (!mProductHasChanged) {
+					NavUtils.navigateUpFromSameTask(EditorActivity.this);
+					return true;
+				}
+
+				// Otherwise if there are unsaved changes, setup a dialog to warn the user.
+				// Create a click listener to handle the user confirming that
+				// changes should be discarded.
+				DialogInterface.OnClickListener discardButtonClickListener =
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialogInterface, int i) {
+								// User clicked "Discard" button, navigate to parent activity.
+								NavUtils.navigateUpFromSameTask(EditorActivity.this);
+							}
+						};
+
+				// Show a dialog that notifies the user they have unsaved changes
+				showUnsavedChangesDialog(discardButtonClickListener);
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	/**
+	 * This method is called when the back button is pressed.
+	 */
+	@Override
+	public void onBackPressed() {
+		// If the product hasn't changed, continue with handling back button press
+		if (!mProductHasChanged) {
+			super.onBackPressed();
+			return;
+		}
+
+		// Otherwise if there are unsaved changes, setup a dialog to warn the user.
+		// Create a click listener to handle the user confirming that changes should be discarded.
+		DialogInterface.OnClickListener discardButtonClickListener =
+				new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialogInterface, int i) {
+						// User clicked "Discard" button, close the current activity.
+						finish();
+					}
+				};
+
+		// Show dialog that there are unsaved changes
+		showUnsavedChangesDialog(discardButtonClickListener);
 	}
 
 	/**
@@ -457,6 +535,32 @@ public class EditorActivity
 
 		// Close the activity
 		finish();
+	}
+
+	/**
+	 * Show a dialog that warns the user there are unsaved changes that will be lost
+	 * if they continue leaving the editor.
+	 */
+	private void showUnsavedChangesDialog(
+			DialogInterface.OnClickListener discardButtonClickListener) {
+		// Create an AlertDialog.Builder and set the message, and click listeners
+		// for the postivie and negative buttons on the dialog.
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage(R.string.unsaved_changes_dialog_msg);
+		builder.setPositiveButton(R.string.discard, discardButtonClickListener);
+		builder.setNegativeButton(R.string.keep_editing, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int id) {
+				// User clicked the "Keep editing" button, so dismiss the dialog
+				// and continue editing the product.
+				if (dialog != null) {
+					dialog.dismiss();
+				}
+			}
+		});
+
+		// Create and show the AlertDialog
+		AlertDialog alertDialog = builder.create();
+		alertDialog.show();
 	}
 
 	@Override
