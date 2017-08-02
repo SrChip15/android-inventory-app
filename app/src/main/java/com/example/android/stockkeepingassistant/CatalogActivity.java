@@ -107,4 +107,10 @@ public class CatalogActivity
 		// Clear out adapter's reference to the cursor, prevents memory leaks
 		mCursorAdapter.swapCursor(null);
 	}
+
+	public void sellItem(View view) {
+		getLoaderManager().getLoader(PRODUCT_LOADER);
+
+
+	}
 }

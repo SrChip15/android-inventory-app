@@ -14,4 +14,7 @@
 
     <!-- Primary dark color for the editor -->
     <color name="editorColorPrimaryDark">#394450</color>
+
+    <!-- Color for product quantity of every item in the list view -->
+    <color name="quantity_circle_color">#69F0AE</color>
 </resources>

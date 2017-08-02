@@ -113,5 +113,17 @@
 
     <!-- Toast message in editor when current product was successfully deleted [CHAR LIMIT=NONE] -->
     <string name="editor_delete_product_successful">Product deleted</string>
+    <string name="list_item_sell_button">sell</string>
+    <string name="list_item_sale_successful">Item sold successfully!</string>
+    <string name="list_item_qty_not_sufficient">Currently out of stock!</string>
+
+    <!-- Price label in list item view to tag the product price information [CHAR LIMIT=20] -->
+    <string name="list_item_price_label">Price: $</string>
+
+    <!-- Multiple items were updated in the database despite the usage of single product content URI -->
+    <string name="list_item_more_than_one_sale">Something went wrong!</string>
+
+    <!-- Log message for multiple item update when single product content URI was provided -->
+    <string name="list_item_sell_error">Multiple match for URI:</string>
 
 </resources>
