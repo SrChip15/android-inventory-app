@@ -141,9 +141,11 @@
     </LinearLayout>
 
     <Button
+        android:id="@+id/editor_order_more"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="120dp"
+        android:onClick="orderMore"
         android:text="@string/editor_order_more"/>
 
 </LinearLayout>
