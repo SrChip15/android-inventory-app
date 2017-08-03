@@ -1,20 +1,27 @@
 package com.example.android.stockkeepingassistant;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NavUtils;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -98,6 +105,8 @@ public class EditorActivity
 
 	/** Identifier for the product data loader */
 	private static final int EXISTING_PRODUCT_LOADER = 1;
+
+	public static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 123;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -735,66 +744,73 @@ public class EditorActivity
 	 * product image is expected to be saved to the device's gallery.
 	 */
 	public void uploadProductImageClick(View view) {
-		// Create intent to pick image from gallery
-		Intent imageFromGalleryIntent = new Intent(
-				Intent.ACTION_PICK,
-				android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+		if (checkPermissionREAD_EXTERNAL_STORAGE(this)) {
+			// do your stuff..
 
-		// Launch activity.
-		// Starts the device's gallery in "select photo" mode
-		startActivityForResult(imageFromGalleryIntent, PICK_IMG_CODE);
+			// Create intent to pick image from gallery
+			Intent imageFromGalleryIntent = new Intent(
+					Intent.ACTION_PICK,
+					android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+
+			// Launch activity.
+			// Starts the device's gallery in "select photo" mode
+			startActivityForResult(imageFromGalleryIntent, PICK_IMG_CODE);
+		}
 	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
 		super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
-		switch (requestCode) {
-			case PICK_IMG_CODE:
-				if (resultCode == RESULT_OK) {
-					Uri selectedImage = imageReturnedIntent.getData();
-					String[] filePathColumn = {MediaStore.Images.Media.DATA};
+		if (checkPermissionREAD_EXTERNAL_STORAGE(this)) {
 
-					Cursor cursor = getContentResolver().query(
-							selectedImage, filePathColumn, null, null, null);
-					cursor.moveToFirst();
+			switch (requestCode) {
+				case PICK_IMG_CODE:
+					if (resultCode == RESULT_OK) {
+						Uri selectedImage = imageReturnedIntent.getData();
+						String[] filePathColumn = {MediaStore.Images.Media.DATA};
 
-					int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-					String filePath = cursor.getString(columnIndex);
-					cursor.close();
+						Cursor cursor = getContentResolver().query(
+								selectedImage, filePathColumn, null, null, null);
+						cursor.moveToFirst();
 
-					Log.v(LOG_TAG, "Found Image at: " + filePath);
+						int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+						String filePath = cursor.getString(columnIndex);
+						cursor.close();
 
-					Bitmap yourSelectedImage = null;
+						Log.v(LOG_TAG, "Found Image at: " + filePath);
 
-					try {
-						yourSelectedImage = decodeUri(selectedImage);
-					} catch (FileNotFoundException e) {
-						e.printStackTrace();
+						Bitmap yourSelectedImage = null;
+
+						try {
+							yourSelectedImage = decodeUri(selectedImage);
+						} catch (FileNotFoundException e) {
+							e.printStackTrace();
+						}
+
+						// Display image to user within new product edit window
+						mProductImage.setImageBitmap(yourSelectedImage);
+						mProductImage.setVisibility(View.VISIBLE);
+
+						// If existing product is being updated
+						if (mCurrentProductUri != null) {
+							Toast.makeText(
+									EditorActivity.this,
+									getString(R.string.editor_product_image_update_success),
+									Toast.LENGTH_SHORT
+							)
+									.show();
+						}
+						// Product image information has changed, so set it to true
+						mProductHasChanged = true;
+
+						// Remove upload button from view
+						mProductImageUploadButton.setVisibility(View.GONE);
+
+						// Save the image to global variable image and clear it out after saving the
+						// current product item
+						mImage = getBytes(yourSelectedImage);
 					}
-
-					// Display image to user within new product edit window
-					mProductImage.setImageBitmap(yourSelectedImage);
-					mProductImage.setVisibility(View.VISIBLE);
-
-					// If existing product is being updated
-					if (mCurrentProductUri != null) {
-						Toast.makeText(
-								EditorActivity.this,
-								getString(R.string.editor_product_image_update_success),
-								Toast.LENGTH_SHORT
-						)
-								.show();
-					}
-					// Product image information has changed, so set it to true
-					mProductHasChanged = true;
-
-					// Remove upload button from view
-					mProductImageUploadButton.setVisibility(View.GONE);
-
-					// Save the image to global variable image and clear it out after saving the
-					// current product item
-					mImage = getBytes(yourSelectedImage);
-				}
+			}
 		}
 	}
 
@@ -841,5 +857,70 @@ public class EditorActivity
 	 */
 	private Bitmap getImage(byte[] image) {
 		return BitmapFactory.decodeByteArray(image, 0, image.length);
+	}
+
+	public boolean checkPermissionREAD_EXTERNAL_STORAGE(
+			final Context context) {
+		int currentAPIVersion = Build.VERSION.SDK_INT;
+		if (currentAPIVersion >= android.os.Build.VERSION_CODES.M) {
+			if (ContextCompat.checkSelfPermission(context,
+					Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+				if (ActivityCompat.shouldShowRequestPermissionRationale(
+						(Activity) context,
+						Manifest.permission.READ_EXTERNAL_STORAGE)) {
+					showDialog("External storage", context,
+							Manifest.permission.READ_EXTERNAL_STORAGE);
+
+				} else {
+					ActivityCompat
+							.requestPermissions(
+									(Activity) context,
+									new String[] { Manifest.permission.READ_EXTERNAL_STORAGE },
+									MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+				}
+				return false;
+			} else {
+				return true;
+			}
+
+		} else {
+			return true;
+		}
+	}
+
+	public void showDialog(final String msg, final Context context,
+	                       final String permission) {
+		AlertDialog.Builder alertBuilder = new AlertDialog.Builder(context);
+		alertBuilder.setCancelable(true);
+		alertBuilder.setTitle("Permission necessary");
+		alertBuilder.setMessage(msg + " permission is necessary");
+		alertBuilder.setPositiveButton(android.R.string.yes,
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+						ActivityCompat.requestPermissions((Activity) context,
+								new String[] { permission },
+								MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+					}
+				});
+		AlertDialog alert = alertBuilder.create();
+		alert.show();
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode,
+	                                       String[] permissions, int[] grantResults) {
+		switch (requestCode) {
+			case MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE:
+				if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+					// do your stuff
+				} else {
+					Toast.makeText(EditorActivity.this, "Media Permisssion Denied",
+							Toast.LENGTH_SHORT).show();
+				}
+				break;
+			default:
+				super.onRequestPermissionsResult(requestCode, permissions,
+						grantResults);
+		}
 	}
 }
