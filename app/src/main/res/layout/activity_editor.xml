@@ -39,6 +39,7 @@
                     android:id="@+id/editor_product_image"
                     android:layout_width="@dimen/product_image_view_dims"
                     android:layout_height="@dimen/product_image_view_dims"
+                    tools:ignore="ContentDescription"
                     tools:src="@drawable/mech_pencil"/>
 
                 <!-- Upload product image prompt -->

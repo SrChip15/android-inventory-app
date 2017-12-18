@@ -21,11 +21,6 @@ public class ProductCursorAdapter
 
 	private LayoutInflater mInflater;
 
-	/**
-	 * Tag for the log messages
-	 */
-	private static final String LOG_TAG = ProductCursorAdapter.class.getSimpleName();
-
 	public ProductCursorAdapter(Context context, Cursor c) {
 		super(context, c, 0 /* flags */);
 		/*
@@ -64,10 +59,10 @@ public class ProductCursorAdapter
 		// Holder to cache view lookups
 		final ViewHolder holder = new ViewHolder();
 		// Cache handle on views
-		holder.productDescTextView = (TextView) itemView.findViewById(R.id.list_item_product_desc);
-		holder.productQuantityTextView = (TextView) itemView.findViewById(R.id.list_item_product_quantity);
-		holder.productPriceTextView = (TextView) itemView.findViewById(R.id.list_item_product_price);
-		holder.sellButtonView = (Button) itemView.findViewById(R.id.list_item_sell_button);
+		holder.productDescTextView = itemView.findViewById(R.id.list_item_product_desc);
+		holder.productQuantityTextView = itemView.findViewById(R.id.list_item_product_quantity);
+		holder.productPriceTextView = itemView.findViewById(R.id.list_item_product_price);
+		holder.sellButtonView = itemView.findViewById(R.id.list_item_sell_button);
 
 		// Set cache on the view before the view gets passsed to the bindView() method callback
 		itemView.setTag(holder);

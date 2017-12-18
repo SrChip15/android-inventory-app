@@ -1,6 +1,7 @@
 package com.example.android.stockkeepingassistant;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.LoaderManager.LoaderCallbacks;
@@ -19,6 +20,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.ContextCompat;
@@ -46,9 +48,7 @@ public class EditorActivity
 		extends AppCompatActivity
 		implements LoaderCallbacks<Cursor> {
 
-	/**
-	 * Tag for the log messages
-	 */
+	/** Tag for the log messages */
 	public static final String LOG_TAG = EditorActivity.class.getSimpleName();
 
 	/** Spinner for choosing supplier contact */
@@ -91,6 +91,7 @@ public class EditorActivity
 	 * the view, and we change the mProductHasChanged boolean to true.
 	 */
 	private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
+		@SuppressLint("ClickableViewAccessibility")
 		@Override
 		public boolean onTouch(View view, MotionEvent motionEvent) {
 			mProductHasChanged = true;
@@ -98,9 +99,7 @@ public class EditorActivity
 		}
 	};
 
-	/**
-	 * Content URI for the existing product (null if it's a new product)
-	 */
+	/** Content URI for the existing product (null if it's a new product) */
 	private Uri mCurrentProductUri;
 
 	/** Identifier for the product data loader */
@@ -116,16 +115,16 @@ public class EditorActivity
 		setContentView(R.layout.activity_editor);
 
 		// Get handle on the elements of the ViewGroup
-		mProductDescEditText = (EditText) findViewById(R.id.editor_product_name);
-		mProductQuantityEditText = (EditText) findViewById(R.id.editor_product_quantity);
-		mProductPriceEditText = (EditText) findViewById(R.id.editor_product_price);
-		mProductSupplierEditText = (EditText) findViewById(R.id.editor_product_supplier_name);
-		mSupplierContactSpinner = (Spinner) findViewById(R.id.spinner_supplier_contact);
-		Button mOrderMoreButton = (Button) findViewById(R.id.editor_order_more);
-		mProductImage = (ImageView) findViewById(R.id.editor_product_image);
-		mProductImageUploadButton = (Button) findViewById(R.id.editor_upload_image_button);
-		Button increaseQuantityButton = (Button) findViewById(R.id.editor_quantity_increment);
-		Button decreaseQuantityButton = (Button) findViewById(R.id.editor_quantity_decrement);
+		mProductDescEditText = findViewById(R.id.editor_product_name);
+		mProductQuantityEditText = findViewById(R.id.editor_product_quantity);
+		mProductPriceEditText = findViewById(R.id.editor_product_price);
+		mProductSupplierEditText = findViewById(R.id.editor_product_supplier_name);
+		mSupplierContactSpinner = findViewById(R.id.spinner_supplier_contact);
+		Button mOrderMoreButton = findViewById(R.id.editor_order_more);
+		mProductImage = findViewById(R.id.editor_product_image);
+		mProductImageUploadButton = findViewById(R.id.editor_upload_image_button);
+		Button increaseQuantityButton = findViewById(R.id.editor_quantity_increment);
+		Button decreaseQuantityButton = findViewById(R.id.editor_quantity_decrement);
 
 		// Setup OnTouchListeners on all the input fields, so we can determine if the user
 		// has touched or modified them. This will let us know if there are unsaved changes
@@ -453,7 +452,7 @@ public class EditorActivity
 		// Get text from quantity field and parse as an integer
 		int quantity = Integer.parseInt(mProductQuantityEditText.getText().toString().trim());
 
-		// Decrease quantity by 1
+		// Increase quantity by 1
 		quantity++;
 
 		// Set the revised quantity on the quantity field
@@ -868,7 +867,7 @@ public class EditorActivity
 				if (ActivityCompat.shouldShowRequestPermissionRationale(
 						(Activity) context,
 						Manifest.permission.READ_EXTERNAL_STORAGE)) {
-					showDialog("External storage", context,
+					showDialog(context,
 							Manifest.permission.READ_EXTERNAL_STORAGE);
 
 				} else {
@@ -888,12 +887,12 @@ public class EditorActivity
 		}
 	}
 
-	public void showDialog(final String msg, final Context context,
+	public void showDialog(final Context context,
 	                       final String permission) {
 		AlertDialog.Builder alertBuilder = new AlertDialog.Builder(context);
 		alertBuilder.setCancelable(true);
 		alertBuilder.setTitle("Permission necessary");
-		alertBuilder.setMessage(msg + " permission is necessary");
+		alertBuilder.setMessage("External storage" + " permission is necessary");
 		alertBuilder.setPositiveButton(android.R.string.yes,
 				new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int which) {
@@ -908,14 +907,13 @@ public class EditorActivity
 
 	@Override
 	public void onRequestPermissionsResult(int requestCode,
-	                                       String[] permissions, int[] grantResults) {
+	                                       @NonNull String[] permissions, @NonNull int[] grantResults) {
 		switch (requestCode) {
 			case MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE:
-				if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-					// do your stuff
-				} else {
+				if (!(grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
 					Toast.makeText(EditorActivity.this, "Media Permisssion Denied",
 							Toast.LENGTH_SHORT).show();
+					return;
 				}
 				break;
 			default:
