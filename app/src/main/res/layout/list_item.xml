@@ -2,14 +2,24 @@
 <!-- Layout for list item in a list view -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal">
+
+    <!-- Product Image -->
+    <ImageView
+        android:id="@+id/product_image_view"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:scaleType="centerCrop"
+        tools:ignore="ContentDescription"/>
 
     <!-- Container for product description and price -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
         android:layout_marginBottom="@dimen/normal_margin"
         android:layout_marginLeft="@dimen/normal_margin"
         android:layout_weight="2"

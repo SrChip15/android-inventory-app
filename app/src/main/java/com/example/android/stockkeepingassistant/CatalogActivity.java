@@ -80,6 +80,7 @@ public class CatalogActivity
 		// Define a projection that specifies the columns from the table we care about.
 		String[] projection = {
 				ProductEntry._ID,
+				ProductEntry.COLUMN_PRODUCT_IMAGE,
 				ProductEntry.COLUMN_PRODUCT_DESC,
 				ProductEntry.COLUMN_PRODUCT_QUANTITY,
 				ProductEntry.COLUMN_PRODUCT_PRICE
