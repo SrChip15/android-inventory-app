@@ -1,7 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Layout for the editor -->
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?><!-- Layout for the editor -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -18,7 +16,7 @@
         <!-- Label -->
         <TextView
             style="@style/CategoryStyle"
-            android:text="@string/category_overview"/>
+            android:text="@string/category_overview" />
 
         <!-- Input fields -->
         <LinearLayout
@@ -40,7 +38,7 @@
                     android:layout_width="@dimen/product_image_view_dims"
                     android:layout_height="@dimen/product_image_view_dims"
                     tools:ignore="ContentDescription"
-                    tools:src="@drawable/mech_pencil"/>
+                    tools:src="@drawable/mech_pencil" />
 
                 <!-- Upload product image prompt -->
                 <Button
@@ -49,7 +47,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:onClick="uploadProductImageClick"
-                    android:text="@string/editor_upload_product_image"/>
+                    android:text="@string/editor_upload_product_image" />
 
             </LinearLayout>
 
@@ -59,7 +57,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/hint_product_name"
-                android:inputType="textCapWords"/>
+                android:inputType="textCapWords" />
 
             <!-- Product quantity container -->
             <LinearLayout
@@ -71,7 +69,7 @@
                     android:layout_width="@dimen/quantity_modifiers_button_width"
                     android:layout_height="wrap_content"
                     android:onClick="decreaseQuantity"
-                    android:text="@string/editor_quantity_decrement"/>
+                    android:text="@string/editor_quantity_decrement" />
 
                 <!-- Quantity field -->
                 <EditText
@@ -81,14 +79,14 @@
                     android:layout_weight="1"
                     android:gravity="center_horizontal"
                     android:hint="@string/hint_product_quantity"
-                    android:inputType="number"/>
+                    android:inputType="number" />
 
                 <Button
                     android:id="@+id/editor_quantity_increment"
                     android:layout_width="@dimen/quantity_modifiers_button_width"
                     android:layout_height="wrap_content"
                     android:onClick="increaseQuantity"
-                    android:text="@string/editor_quantity_increment"/>
+                    android:text="@string/editor_quantity_increment" />
 
             </LinearLayout>
 
@@ -98,7 +96,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/hint_product_price"
-                android:inputType="number"/>
+                android:inputType="number" />
 
         </LinearLayout>
     </LinearLayout>
@@ -112,7 +110,7 @@
         <!-- Label -->
         <TextView
             style="@style/CategoryStyle"
-            android:text="@string/category_supplier"/>
+            android:text="@string/category_supplier" />
 
         <!-- Input field -->
         <LinearLayout
@@ -126,7 +124,7 @@
                 android:id="@+id/editor_product_supplier_name"
                 style="@style/EditorFieldStyle"
                 android:hint="@string/hint_product_supplier_name"
-                android:inputType="textCapWords"/>
+                android:inputType="textCapWords" />
         </LinearLayout>
 
     </LinearLayout>
@@ -139,7 +137,7 @@
         <!-- Label -->
         <TextView
             style="@style/CategoryStyle"
-            android:text="@string/category_supplier_contact"/>
+            android:text="@string/category_supplier_contact" />
 
         <!-- Input field -->
         <LinearLayout
@@ -154,7 +152,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/spinner_height"
                 android:paddingRight="@dimen/medium_margin"
-                android:spinnerMode="dropdown"/>
+                android:spinnerMode="dropdown" />
         </LinearLayout>
     </LinearLayout>
 
@@ -165,6 +163,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/top_margin_order_more_button"
         android:onClick="orderMore"
-        android:text="@string/editor_order_more"/>
+        android:text="@string/editor_order_more" />
 
 </LinearLayout>

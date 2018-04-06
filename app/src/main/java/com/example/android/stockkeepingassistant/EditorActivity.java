@@ -48,64 +48,58 @@ public class EditorActivity
 		extends AppCompatActivity
 		implements LoaderCallbacks<Cursor> {
 
-	/** Tag for the log messages */
-	public static final String LOG_TAG = EditorActivity.class.getSimpleName();
+	public static final String TAG = EditorActivity.class.getSimpleName();
+	private static final int EXISTING_PRODUCT_LOADER = 1;
+	public static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 123;
 
 	/** Spinner for choosing supplier contact */
-	private Spinner mSupplierContactSpinner;
+	private Spinner supplierEmailPicker;
 
 	/** Supplier email ID. Possible values are available in the ProductContract.java file */
-	private String mSupplierContact;
+	private String supplierEmail;
 
 	/** EditText field for product description */
-	private EditText mProductDescEditText;
+	private EditText productTitle;
 
 	/** EditText field for product quantity information */
-	private EditText mProductQuantityEditText;
+	private EditText productQuantity;
 
 	/** EditText field for product price information */
-	private EditText mProductPriceEditText;
+	private EditText productPrice;
 
 	/** EditText field for product supplier's name */
-	private EditText mProductSupplierEditText;
+	private EditText supplierName;
 
 	/** EditText field for product image */
-	private ImageView mProductImage;
+	private ImageView productImage;
 
 	/** Button to upload product image */
-	private Button mProductImageUploadButton;
+	private Button productCamera;
 
 	/** Intent identifier */
 	private static final int PICK_IMG_CODE = 1;
 
 	/** Product image as byte array to be stored in database */
-	private byte[] mImage = null;
+	private byte[] imageAsArray = null;
 
-	/**
-	 * Boolean flag that keeps track of whether the product has been edited (true) or not (false)
-	 */
-	private boolean mProductHasChanged = false;
+	/** Boolean flag that tracks whether the product has been edited (true) or not (false) */
+	private boolean productHasChanged = false;
 
 	/**
 	 * OnTouchListener that listens for any user touches on a View, implying that they are modifying
-	 * the view, and we change the mProductHasChanged boolean to true.
+	 * the view, and we change the productHasChanged boolean to true.
 	 */
 	private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
 		@SuppressLint("ClickableViewAccessibility")
 		@Override
 		public boolean onTouch(View view, MotionEvent motionEvent) {
-			mProductHasChanged = true;
+			productHasChanged = true;
 			return false;
 		}
 	};
 
 	/** Content URI for the existing product (null if it's a new product) */
 	private Uri mCurrentProductUri;
-
-	/** Identifier for the product data loader */
-	private static final int EXISTING_PRODUCT_LOADER = 1;
-
-	public static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 123;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -115,31 +109,31 @@ public class EditorActivity
 		setContentView(R.layout.activity_editor);
 
 		// Get handle on the elements of the ViewGroup
-		mProductDescEditText = findViewById(R.id.editor_product_name);
-		mProductQuantityEditText = findViewById(R.id.editor_product_quantity);
-		mProductPriceEditText = findViewById(R.id.editor_product_price);
-		mProductSupplierEditText = findViewById(R.id.editor_product_supplier_name);
-		mSupplierContactSpinner = findViewById(R.id.spinner_supplier_contact);
+		productTitle = findViewById(R.id.editor_product_name);
+		productQuantity = findViewById(R.id.editor_product_quantity);
+		productPrice = findViewById(R.id.editor_product_price);
+		supplierName = findViewById(R.id.editor_product_supplier_name);
+		supplierEmailPicker = findViewById(R.id.spinner_supplier_contact);
 		Button mOrderMoreButton = findViewById(R.id.editor_order_more);
-		mProductImage = findViewById(R.id.editor_product_image);
-		mProductImageUploadButton = findViewById(R.id.editor_upload_image_button);
+		productImage = findViewById(R.id.editor_product_image);
+		productCamera = findViewById(R.id.editor_upload_image_button);
 		Button increaseQuantityButton = findViewById(R.id.editor_quantity_increment);
 		Button decreaseQuantityButton = findViewById(R.id.editor_quantity_decrement);
 
 		// Setup OnTouchListeners on all the input fields, so we can determine if the user
 		// has touched or modified them. This will let us know if there are unsaved changes
 		// or not, if the user tries to leave the editor without saving.
-		mProductDescEditText.setOnTouchListener(mTouchListener);
-		mProductQuantityEditText.setOnTouchListener(mTouchListener);
-		mProductPriceEditText.setOnTouchListener(mTouchListener);
-		mProductSupplierEditText.setOnTouchListener(mTouchListener);
-		mSupplierContactSpinner.setOnTouchListener(mTouchListener);
-		mProductImageUploadButton.setOnTouchListener(mTouchListener);
+		productTitle.setOnTouchListener(mTouchListener);
+		productQuantity.setOnTouchListener(mTouchListener);
+		productPrice.setOnTouchListener(mTouchListener);
+		supplierName.setOnTouchListener(mTouchListener);
+		supplierEmailPicker.setOnTouchListener(mTouchListener);
+		productCamera.setOnTouchListener(mTouchListener);
 		increaseQuantityButton.setOnTouchListener(mTouchListener);
 		decreaseQuantityButton.setOnTouchListener(mTouchListener);
 
 		// Set default text on quantity field
-		mProductQuantityEditText.setText(String.valueOf(0));
+		productQuantity.setText(String.valueOf(0));
 
 		// Setup spinner
 		setupSpinner();
@@ -156,7 +150,7 @@ public class EditorActivity
 			setTitle(R.string.editor_detailed_mode_title);
 
 			// Remove upload photo button from view
-			mProductImageUploadButton.setVisibility(View.GONE);
+			productCamera.setVisibility(View.GONE);
 
 			// Kick-off loader to retrieve existing product information
 			getLoaderManager().initLoader(EXISTING_PRODUCT_LOADER, null, EditorActivity.this);
@@ -173,7 +167,7 @@ public class EditorActivity
 			mOrderMoreButton.setVisibility(View.GONE);
 
 			// Remove product image view
-			mProductImage.setVisibility(View.GONE);
+			productImage.setVisibility(View.GONE);
 		}
 	}
 
@@ -228,7 +222,7 @@ public class EditorActivity
 			// Respond to a click on the "Up" arrow button in the app bar
 			case android.R.id.home:
 				// If the product hasn't changed, continue with navigating up to parent activity
-				if (!mProductHasChanged) {
+				if (!productHasChanged) {
 					NavUtils.navigateUpFromSameTask(EditorActivity.this);
 					return true;
 				}
@@ -258,7 +252,7 @@ public class EditorActivity
 	@Override
 	public void onBackPressed() {
 		// If the product hasn't changed, continue with handling back button press
-		if (!mProductHasChanged) {
+		if (!productHasChanged) {
 			super.onBackPressed();
 			return;
 		}
@@ -291,34 +285,34 @@ public class EditorActivity
 		genderSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
 
 		// Apply the adapter to the spinner
-		mSupplierContactSpinner.setAdapter(genderSpinnerAdapter);
+		supplierEmailPicker.setAdapter(genderSpinnerAdapter);
 
 		// Set the integer mSelected to the constant values
-		mSupplierContactSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+		supplierEmailPicker.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 				String selection = (String) parent.getItemAtPosition(position);
 				if (!TextUtils.isEmpty(selection)) {
 					if (selection.equals(getString(R.string.supplier_1))) {
-						mSupplierContact = ProductEntry.SUPPLIER_1; // Supplier 1 email ID
+						supplierEmail = ProductEntry.SUPPLIER_1; // Supplier 1 email ID
 					} else if (selection.equals(getString(R.string.supplier_2))) {
-						mSupplierContact = ProductEntry.SUPPLIER_2; // Supplier 2 email ID
+						supplierEmail = ProductEntry.SUPPLIER_2; // Supplier 2 email ID
 					} else if (selection.equals(getString(R.string.supplier_3))) {
-						mSupplierContact = ProductEntry.SUPPLIER_3; // Supplier 3 email ID
+						supplierEmail = ProductEntry.SUPPLIER_3; // Supplier 3 email ID
 					} else if (selection.equals(getString(R.string.supplier_4))) {
-						mSupplierContact = ProductEntry.SUPPLIER_4; // Supplier 4 email ID
+						supplierEmail = ProductEntry.SUPPLIER_4; // Supplier 4 email ID
 					} else if (selection.equals(getString(R.string.supplier_5))) {
-						mSupplierContact = ProductEntry.SUPPLIER_5; // Supplier 5 email ID
+						supplierEmail = ProductEntry.SUPPLIER_5; // Supplier 5 email ID
 					} else if (selection.equals(getString(R.string.supplier_6))) {
-						mSupplierContact = ProductEntry.SUPPLIER_6; // Supplier 6 email ID
+						supplierEmail = ProductEntry.SUPPLIER_6; // Supplier 6 email ID
 					} else if (selection.equals(getString(R.string.supplier_7))) {
-						mSupplierContact = ProductEntry.SUPPLIER_7; // Supplier 7 email ID
+						supplierEmail = ProductEntry.SUPPLIER_7; // Supplier 7 email ID
 					} else if (selection.equals(getString(R.string.supplier_8))) {
-						mSupplierContact = ProductEntry.SUPPLIER_8; // Supplier 8 email ID
+						supplierEmail = ProductEntry.SUPPLIER_8; // Supplier 8 email ID
 					} else if (selection.equals(getString(R.string.supplier_9))) {
-						mSupplierContact = ProductEntry.SUPPLIER_9; // Supplier 9 email ID
+						supplierEmail = ProductEntry.SUPPLIER_9; // Supplier 9 email ID
 					} else {
-						mSupplierContact = ProductEntry.SUPPLIER_10; // Supplier 10 email ID
+						supplierEmail = ProductEntry.SUPPLIER_10; // Supplier 10 email ID
 					}
 				}
 			}
@@ -326,7 +320,7 @@ public class EditorActivity
 			// Because AdapterView is an abstract class, onNothingSelected must be defined
 			@Override
 			public void onNothingSelected(AdapterView<?> parent) {
-				mSupplierContact = ProductEntry.SUPPLIER_1; // Supplier 1 email ID
+				supplierEmail = ProductEntry.SUPPLIER_1; // Supplier 1 email ID
 			}
 		});
 	}
@@ -334,17 +328,17 @@ public class EditorActivity
 	private void saveProduct() {
 		// Read from input fields
 		// Use trim to eliminate leading or trailing white space
-		String productDesc = mProductDescEditText.getText().toString().trim();
-		String productQuantity = mProductQuantityEditText.getText().toString().trim();
-		String productPrice = mProductPriceEditText.getText().toString().trim();
-		String productSupplier = mProductSupplierEditText.getText().toString().trim();
+		String productDesc = productTitle.getText().toString().trim();
+		String productQuantity = this.productQuantity.getText().toString().trim();
+		String productPrice = this.productPrice.getText().toString().trim();
+		String productSupplier = supplierName.getText().toString().trim();
 
 		// Create a ContentValues object where column names are the keys,
 		// and product attributes from the editor are the values.
 		ContentValues values = new ContentValues();
 		values.put(ProductEntry.COLUMN_PRODUCT_DESC, productDesc);
 		values.put(ProductEntry.COLUMN_PRODUCT_SUPPLIER, productSupplier);
-		values.put(ProductEntry.COLUMN_PRODUCT_SUPPLIER_CONTACT, mSupplierContact);
+		values.put(ProductEntry.COLUMN_PRODUCT_SUPPLIER_CONTACT, supplierEmail);
 
 		// If the quantity is not provided by the user, don't try to parse the string into an
 		// integer value. Use 0 by default.
@@ -372,12 +366,12 @@ public class EditorActivity
 
 		// Check if product image has been provided and if provided add the image URI as
 		// string to the database
-		if (mImage != null) {
+		if (imageAsArray != null) {
 			// Product image is provided
-			values.put(ProductEntry.COLUMN_PRODUCT_IMAGE, mImage);
+			values.put(ProductEntry.COLUMN_PRODUCT_IMAGE, imageAsArray);
 
 			// Clear current item's image URI
-			mImage = null;
+			imageAsArray = null;
 		}
 
 		if (mCurrentProductUri == null) {
@@ -433,14 +427,14 @@ public class EditorActivity
 
 	public void decreaseQuantity(View view) {
 		// Get text from quantity field and parse as an integer
-		int quantity = Integer.parseInt(mProductQuantityEditText.getText().toString().trim());
+		int quantity = Integer.parseInt(productQuantity.getText().toString().trim());
 
 		// Check for negative quantity
 		if (quantity > 0) {
 			// Quantity is not zero.
 			// So, decrease quantity by 1.
 			quantity--;
-			mProductQuantityEditText.setText(String.valueOf(quantity));
+			productQuantity.setText(String.valueOf(quantity));
 		} else {
 			// The product is currently not in stock and cannot be decreased.
 			// Display message to the user that the quantity cannot be less than zero.
@@ -450,18 +444,18 @@ public class EditorActivity
 
 	public void increaseQuantity(View view) {
 		// Get text from quantity field and parse as an integer
-		int quantity = Integer.parseInt(mProductQuantityEditText.getText().toString().trim());
+		int quantity = Integer.parseInt(productQuantity.getText().toString().trim());
 
 		// Increase quantity by 1
 		quantity++;
 
 		// Set the revised quantity on the quantity field
-		mProductQuantityEditText.setText(String.valueOf(quantity));
+		productQuantity.setText(String.valueOf(quantity));
 	}
 
 	public void orderMore(View view) {
 		// Get the position of the item the spinner is set at
-		int position = mSupplierContactSpinner.getSelectedItemPosition();
+		int position = supplierEmailPicker.getSelectedItemPosition();
 
 		// Declare string to hold the supplier's email ID
 		String supplierEmail;
@@ -529,18 +523,16 @@ public class EditorActivity
 
 		// Add image to values
 		ContentValues editImageValue = new ContentValues();
-		editImageValue.put(ProductEntry.COLUMN_PRODUCT_IMAGE, mImage);
+		editImageValue.put(ProductEntry.COLUMN_PRODUCT_IMAGE, imageAsArray);
 
 		// update db
 		getContentResolver().update(mCurrentProductUri, editImageValue, null, null);
 
-		// Remove image associated with mImage
-		mImage = null;
+		// Remove image associated with imageAsArray
+		imageAsArray = null;
 	}
 
-	/**
-	 * Prompt the user to confirm that they want to delete this product.
-	 */
+	/** Prompt the user to confirm that they want to delete this product. */
 	private void showDeleteConfirmationDialog() {
 		// Create an AlertDialog.Builder and set the message, and click listeners
 		// for the postivie and negative buttons on the dialog.
@@ -669,10 +661,10 @@ public class EditorActivity
 			String supplierContact = cursor.getString(supplierContactColumnIndex);
 
 			// Update the views on the screen with the values from the database
-			mProductDescEditText.setText(desc);
-			mProductQuantityEditText.setText(String.valueOf(quantity));
-			mProductPriceEditText.setText(String.valueOf(price));
-			mProductSupplierEditText.setText(String.valueOf(supplier));
+			productTitle.setText(desc);
+			productQuantity.setText(String.valueOf(quantity));
+			productPrice.setText(String.valueOf(price));
+			supplierName.setText(String.valueOf(supplier));
 
 			// Initialize var to hold product image
 			if (byteImage != null) {
@@ -682,46 +674,46 @@ public class EditorActivity
 				image = getImage(byteImage);
 
 				// Set image on product image view
-				mProductImage.setImageBitmap(image);
+				productImage.setImageBitmap(image);
 			} else {
 				// Product image does not exist.
 				// Set default image for product image. This image information is not saved to
 				// database, purely UI fix.
-				mProductImage.setImageResource(R.drawable.no_prod_img);
+				productImage.setImageResource(R.drawable.no_prod_img);
 			}
 
 			// Supplier contact information is a spinner drop down.
 			// Map the constant value from database into one of the drop-down options
 			switch (supplierContact) {
 				case ProductEntry.SUPPLIER_1:
-					mSupplierContactSpinner.setSelection(0);
+					supplierEmailPicker.setSelection(0);
 					break;
 				case ProductEntry.SUPPLIER_2:
-					mSupplierContactSpinner.setSelection(1);
+					supplierEmailPicker.setSelection(1);
 					break;
 				case ProductEntry.SUPPLIER_3:
-					mSupplierContactSpinner.setSelection(2);
+					supplierEmailPicker.setSelection(2);
 					break;
 				case ProductEntry.SUPPLIER_4:
-					mSupplierContactSpinner.setSelection(3);
+					supplierEmailPicker.setSelection(3);
 					break;
 				case ProductEntry.SUPPLIER_5:
-					mSupplierContactSpinner.setSelection(4);
+					supplierEmailPicker.setSelection(4);
 					break;
 				case ProductEntry.SUPPLIER_6:
-					mSupplierContactSpinner.setSelection(5);
+					supplierEmailPicker.setSelection(5);
 					break;
 				case ProductEntry.SUPPLIER_7:
-					mSupplierContactSpinner.setSelection(6);
+					supplierEmailPicker.setSelection(6);
 					break;
 				case ProductEntry.SUPPLIER_8:
-					mSupplierContactSpinner.setSelection(7);
+					supplierEmailPicker.setSelection(7);
 					break;
 				case ProductEntry.SUPPLIER_9:
-					mSupplierContactSpinner.setSelection(8);
+					supplierEmailPicker.setSelection(8);
 					break;
 				default:
-					mSupplierContactSpinner.setSelection(9);
+					supplierEmailPicker.setSelection(9);
 					break;
 			}
 		}
@@ -730,12 +722,12 @@ public class EditorActivity
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
 		// If the loader is invalidated, clear out all the data from the input fields.
-		mProductDescEditText.setText("");
-		mProductQuantityEditText.setText("");
-		mProductPriceEditText.setText("");
-		mProductSupplierEditText.setText("");
-		mSupplierContactSpinner.setSelection(0);
-		mProductImage.setImageBitmap(null);
+		productTitle.setText("");
+		productQuantity.setText("");
+		productPrice.setText("");
+		supplierName.setText("");
+		supplierEmailPicker.setSelection(0);
+		productImage.setImageBitmap(null);
 	}
 
 	/**
@@ -769,14 +761,19 @@ public class EditorActivity
 						String[] filePathColumn = {MediaStore.Images.Media.DATA};
 
 						Cursor cursor = getContentResolver().query(
-								selectedImage, filePathColumn, null, null, null);
+								selectedImage,
+								filePathColumn,
+								null,
+								null,
+								null
+						);
 						cursor.moveToFirst();
 
 						int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
 						String filePath = cursor.getString(columnIndex);
 						cursor.close();
 
-						Log.v(LOG_TAG, "Found Image at: " + filePath);
+						Log.v(TAG, "Found Image at: " + filePath);
 
 						Bitmap yourSelectedImage = null;
 
@@ -787,8 +784,8 @@ public class EditorActivity
 						}
 
 						// Display image to user within new product edit window
-						mProductImage.setImageBitmap(yourSelectedImage);
-						mProductImage.setVisibility(View.VISIBLE);
+						productImage.setImageBitmap(yourSelectedImage);
+						productImage.setVisibility(View.VISIBLE);
 
 						// If existing product is being updated
 						if (mCurrentProductUri != null) {
@@ -800,14 +797,14 @@ public class EditorActivity
 									.show();
 						}
 						// Product image information has changed, so set it to true
-						mProductHasChanged = true;
+						productHasChanged = true;
 
 						// Remove upload button from view
-						mProductImageUploadButton.setVisibility(View.GONE);
+						productCamera.setVisibility(View.GONE);
 
 						// Save the image to global variable image and clear it out after saving the
 						// current product item
-						mImage = getBytes(yourSelectedImage);
+						imageAsArray = getBytes(yourSelectedImage);
 					}
 			}
 		}
@@ -845,7 +842,7 @@ public class EditorActivity
 	/**
 	 * Helper method to conver bitmap to byte array
 	 */
-	private byte[] getBytes(Bitmap bitmap) {
+	private byte[] getBytes(@NonNull Bitmap bitmap) {
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		bitmap.compress(CompressFormat.PNG, 0, stream);
 		return stream.toByteArray();
@@ -911,7 +908,7 @@ public class EditorActivity
 		switch (requestCode) {
 			case MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE:
 				if (!(grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-					Toast.makeText(EditorActivity.this, "Media Permisssion Denied",
+					Toast.makeText(EditorActivity.this, "Media Permission Denied",
 							Toast.LENGTH_SHORT).show();
 					return;
 				}
