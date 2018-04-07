@@ -1,11 +1,9 @@
-package com.example.android.stockkeepingassistant;
+package com.example.android.stockkeepingassistant.view.adapter;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.stockkeepingassistant.R;
 import com.example.android.stockkeepingassistant.data.ProductContract.ProductEntry;
 
 public class ProductCursorAdapter
@@ -26,10 +25,7 @@ public class ProductCursorAdapter
 
 	public ProductCursorAdapter(Context context, Cursor c) {
 		super(context, c, 0 /* flags */);
-		/*
-		     * Gets an inflater that can instantiate
-             * the ListView layout from the file.
-             */
+
 		mInflater = LayoutInflater.from(context);
 	}
 
@@ -69,7 +65,7 @@ public class ProductCursorAdapter
 		holder.productPriceTextView = itemView.findViewById(R.id.list_item_product_price);
 		holder.sellButtonView = itemView.findViewById(R.id.list_item_sell_button);
 
-		// Set cache on the view before the view gets passsed to the bindView() method callback
+		// Set cache on the view before the view gets passed to the bindView() method callback
 		itemView.setTag(holder);
 
 		// Return the constructed view
@@ -83,14 +79,12 @@ public class ProductCursorAdapter
 
 		// Find the columns of product attributes that we're interested in
 		int rowIdColumnIndex = cursor.getColumnIndex(ProductEntry._ID);
-		int imageColumnIndex = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_IMAGE);
 		int descColumnIndex = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_DESC);
 		int quantityColumnIndex = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_QUANTITY);
 		int priceColumnIndex = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_PRICE);
 
 		// Read the product attributes from the Cursor for the current product
 		int rowId = cursor.getInt(rowIdColumnIndex);
-		byte[] imageByteArray = cursor.getBlob(imageColumnIndex);
 		final String productDesc = cursor.getString(descColumnIndex);
 		final int quantity = cursor.getInt(quantityColumnIndex);
 		final int price = cursor.getInt(priceColumnIndex);
@@ -102,11 +96,7 @@ public class ProductCursorAdapter
 		ItemValues item = new ItemValues(rowId,quantity);
 		holder.sellButtonView.setTag(item);
 
-		// Make bitmap of product image from database
-		Bitmap productImage = BitmapFactory.decodeByteArray(imageByteArray, 0, imageByteArray.length);
-
 		// Update Views with the attributes of the current product
-		holder.productImageView.setImageBitmap(productImage);
 		holder.productDescTextView.setText(productDesc);
 		holder.productQuantityTextView.setText(String.valueOf(quantity));
 		holder.productPriceTextView.setText(context.getString(R.string.list_item_price_label));
@@ -125,7 +115,7 @@ public class ProductCursorAdapter
 			// Revise quantity
 			int revisedQuantity = modItem.getQuantity() - 1;
 
-			// Create content values with updated quantiy value
+			// Create content values with updated quantity value
 			ContentValues updatedValues = new ContentValues();
 			updatedValues.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, revisedQuantity);
 
@@ -133,7 +123,7 @@ public class ProductCursorAdapter
 			Uri itemUri = ContentUris.withAppendedId(ProductEntry.CONTENT_URI, modItem.getRowId());
 
 			// Update quantity in database.
-			// As the notificatin URI is set in the content provider, the update query will
+			// As the notification URI is set in the content provider, the update query will
 			// automatically trigger view refresh
 			view.getContext().getContentResolver().update(itemUri, updatedValues, null, null);
 
@@ -153,7 +143,7 @@ public class ProductCursorAdapter
 	 * Inner class to store row ID and quantity information of the clicked item when the
 	 * sell button is clicked
 	 */
-	private class ItemValues {
+	static private class ItemValues {
 		int rowId;              /*  from the database */
 		int quantity;           /*  from the database */
 
@@ -162,17 +152,13 @@ public class ProductCursorAdapter
 			this.quantity = quantity;
 		}
 
-		/**
-		 * Return the row Id of the product
-		 */
-		public int getRowId() {
+		/** Return the row Id of the product */
+		private int getRowId() {
 			return rowId;
 		}
 
-		/**
-		 * Return the quantity of the product
-		 */
-		public int getQuantity() {
+		/** Return the quantity of the product */
+		private int getQuantity() {
 			return quantity;
 		}
 	}
