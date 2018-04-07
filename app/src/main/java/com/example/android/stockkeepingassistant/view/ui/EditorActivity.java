@@ -40,7 +40,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.android.stockkeepingassistant.R;
-import com.example.android.stockkeepingassistant.data.ProductContract.ProductEntry;
+import com.example.android.stockkeepingassistant.model.ProductContract.ProductEntry;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;

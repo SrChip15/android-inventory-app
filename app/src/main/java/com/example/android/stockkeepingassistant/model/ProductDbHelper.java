@@ -1,10 +1,10 @@
-package com.example.android.stockkeepingassistant.data;
+package com.example.android.stockkeepingassistant.model;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.example.android.stockkeepingassistant.data.ProductContract.ProductEntry;
+import com.example.android.stockkeepingassistant.model.ProductContract.ProductEntry;
 
 public class ProductDbHelper extends SQLiteOpenHelper {
 	// If you change the database schema, you must increment the database version.

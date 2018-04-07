@@ -1,4 +1,4 @@
-package com.example.android.stockkeepingassistant.data;
+package com.example.android.stockkeepingassistant.model;
 
 import android.content.ContentResolver;
 import android.net.Uri;

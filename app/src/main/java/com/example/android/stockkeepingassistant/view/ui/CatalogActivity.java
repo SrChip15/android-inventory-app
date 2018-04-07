@@ -15,7 +15,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.example.android.stockkeepingassistant.R;
-import com.example.android.stockkeepingassistant.data.ProductContract.ProductEntry;
+import com.example.android.stockkeepingassistant.model.ProductContract.ProductEntry;
 import com.example.android.stockkeepingassistant.view.adapter.ProductCursorAdapter;
 
 public class CatalogActivity

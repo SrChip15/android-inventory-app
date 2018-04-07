@@ -28,7 +28,7 @@
         </activity>
 
         <provider
-            android:name=".data.ProductProvider"
+            android:name=".model.ProductProvider"
             android:authorities="com.example.android.stockkeepingassistant"
             android:exported="false"/>
     </application>

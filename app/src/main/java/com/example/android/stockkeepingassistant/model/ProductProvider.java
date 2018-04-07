@@ -1,4 +1,4 @@
-package com.example.android.stockkeepingassistant.data;
+package com.example.android.stockkeepingassistant.model;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
@@ -13,7 +13,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.example.android.stockkeepingassistant.R;
-import com.example.android.stockkeepingassistant.data.ProductContract.ProductEntry;
+import com.example.android.stockkeepingassistant.model.ProductContract.ProductEntry;
 
 import java.util.Objects;
 
