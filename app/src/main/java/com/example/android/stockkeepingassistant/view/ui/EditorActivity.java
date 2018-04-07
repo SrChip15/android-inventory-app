@@ -35,11 +35,13 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.android.stockkeepingassistant.R;
+import com.example.android.stockkeepingassistant.Utils;
 import com.example.android.stockkeepingassistant.model.ProductContract.ProductEntry;
 
 import java.io.ByteArrayOutputStream;
@@ -75,7 +77,7 @@ public class EditorActivity
     private ImageView productImage;
 
     /** Button to upload product image */
-    private Button productCamera;
+    private ImageButton productCamera;
 
     /** Intent identifier */
     private static final int PICK_IMG_CODE = 1;
@@ -97,24 +99,23 @@ public class EditorActivity
     };
 
     /** Content URI for the existing product (null if it's a new product) */
-    private Uri mCurrentProductUri;
+    private Uri currentProductUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // Setup UI view
         setContentView(R.layout.activity_editor);
 
         // Get handle on the elements of the ViewGroup
+        productImage = findViewById(R.id.editor_product_image);
+        productCamera = findViewById(R.id.editor_product_camera);
         productTitle = findViewById(R.id.editor_product_name);
         productQuantity = findViewById(R.id.editor_product_quantity);
         productPrice = findViewById(R.id.editor_product_price);
+
         supplierName = findViewById(R.id.editor_product_supplier_name);
         supplierEmailPicker = findViewById(R.id.spinner_supplier_contact);
-        Button mOrderMoreButton = findViewById(R.id.editor_order_more);
-        productImage = findViewById(R.id.editor_product_image);
-        productCamera = findViewById(R.id.editor_upload_image_button);
+        Button orderMoreButton = findViewById(R.id.editor_order_more);
         Button increaseQuantityButton = findViewById(R.id.editor_quantity_increment);
         Button decreaseQuantityButton = findViewById(R.id.editor_quantity_decrement);
 
@@ -139,16 +140,13 @@ public class EditorActivity
 
         // If the list item was clicked then the product URI of the list item is set on the intent
         // that triggered the editor activity
-        mCurrentProductUri = getIntent().getData();
+        currentProductUri = getIntent().getData();
 
         // Determine the mode in which the editor activity was launched
-        if (mCurrentProductUri != null) {
+        if (currentProductUri != null) {
             // Detailed/Edit view mode active. Existing product is being viewed
             // Set appropriate title
             setTitle(R.string.editor_detailed_mode_title);
-
-            // Remove upload photo button from view
-            productCamera.setVisibility(View.GONE);
 
             // Kick-off loader to retrieve existing product information
             getLoaderManager().initLoader(EXISTING_PRODUCT_LOADER, null, EditorActivity.this);
@@ -162,10 +160,10 @@ public class EditorActivity
             invalidateOptionsMenu();
 
             // Remove "order more" button for new product
-            mOrderMoreButton.setVisibility(View.GONE);
+            orderMoreButton.setVisibility(View.GONE);
 
-            // Remove product image view
-            productImage.setVisibility(View.GONE);
+            // Set default image when no image set
+            productImage.setImageResource(R.drawable.no_prod_img);
         }
     }
 
@@ -177,7 +175,7 @@ public class EditorActivity
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         // This is a new product
-        if (mCurrentProductUri == null) {
+        if (currentProductUri == null) {
             // Hide the "Delete" menu item
             MenuItem deleteMenuItem = menu.findItem(R.id.action_delete);
             deleteMenuItem.setVisible(false);
@@ -229,12 +227,9 @@ public class EditorActivity
                 // Create a click listener to handle the user confirming that
                 // changes should be discarded.
                 DialogInterface.OnClickListener discardButtonClickListener =
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                // User clicked "Discard" button, navigate to parent activity.
-                                NavUtils.navigateUpFromSameTask(EditorActivity.this);
-                            }
+                        (dialogInterface, i) -> {
+                            // User clicked "Discard" button, navigate to parent activity.
+                            NavUtils.navigateUpFromSameTask(EditorActivity.this);
                         };
 
                 // Show a dialog that notifies the user they have unsaved changes
@@ -244,9 +239,7 @@ public class EditorActivity
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * This method is called when the back button is pressed.
-     */
+    /** This method is called when the back button is pressed. */
     @Override
     public void onBackPressed() {
         // If the product hasn't changed, continue with handling back button press
@@ -258,12 +251,9 @@ public class EditorActivity
         // Otherwise if there are unsaved changes, setup a dialog to warn the user.
         // Create a click listener to handle the user confirming that changes should be discarded.
         DialogInterface.OnClickListener discardButtonClickListener =
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        // User clicked "Discard" button, close the current activity.
-                        finish();
-                    }
+                (dialogInterface, i) -> {
+                    // User clicked "Discard" button, close the current activity.
+                    finish();
                 };
 
         // Show dialog that there are unsaved changes
@@ -347,7 +337,7 @@ public class EditorActivity
         // If the quantity is not provided by the user, don't try to parse the string into an
         // integer value.
         if (!TextUtils.isEmpty(productPrice)) {
-            int price = Integer.parseInt(productPrice);
+            float price = Float.parseFloat(productPrice);
             values.put(ProductEntry.COLUMN_PRODUCT_PRICE, price);
         } else {
             Toast.makeText(
@@ -363,7 +353,7 @@ public class EditorActivity
         // Check if product image has been provided and if provided add the image URI as
         // string to the database
 
-        if (mCurrentProductUri == null) {
+        if (currentProductUri == null) {
             // This is a NEW product, so insert a new product into the provider,
             // returning the content URI for the new product.
 
@@ -394,11 +384,11 @@ public class EditorActivity
                 }
             }
         } else {
-            // Otherwise this is an EXISTING product, so update the product with content URI: mCurrentProductUri
+            // Otherwise this is an EXISTING product, so update the product with content URI: currentProductUri
             // and pass in the new ContentValues. Pass in null for the selection and selection args
-            // because mCurrentProductUri will already identify the correct row in the database that
+            // because currentProductUri will already identify the correct row in the database that
             // we want to modify.
-            int rowsAffected = getContentResolver().update(mCurrentProductUri, values, null, null);
+            int rowsAffected = getContentResolver().update(currentProductUri, values, null, null);
 
             // Show a toast message depending on whether or not the update was successful.
             if (rowsAffected == 0) {
@@ -543,11 +533,11 @@ public class EditorActivity
      */
     private void deleteProduct() {
         // Only perform the delete if this is an existing product.
-        if (mCurrentProductUri != null) {
+        if (currentProductUri != null) {
             // Call the ContentResolver to delete the product at the given content URI.
-            // Pass in null for the selection and selection args because the mCurrentProductUri
+            // Pass in null for the selection and selection args because the currentProductUri
             // content URI already identifies the product that we want.
-            int rowsDeleted = getContentResolver().delete(mCurrentProductUri, null, null);
+            int rowsDeleted = getContentResolver().delete(currentProductUri, null, null);
 
             // Show a toast message depending on whether or not the delete was successful.
             if (rowsDeleted == 0) {
@@ -606,7 +596,7 @@ public class EditorActivity
 
         // This loader will execute the ContentProvider's query method on a background thread
         return new CursorLoader(this,           // Parent activity context
-                mCurrentProductUri,             // Query the content URI for the current product
+                currentProductUri,             // Query the content URI for the current product
                 projection,                     // Columns to include in the resulting Cursor
                 null,                           // No selection clause
                 null,                           // No selection arguments
@@ -632,15 +622,17 @@ public class EditorActivity
             // Extract out the value from the Cursor for the given column index
             String desc = cursor.getString(descColumnIndex);
             int quantity = cursor.getInt(quantityColumnIndex);
-            int price = cursor.getInt(priceColumnIndex);
+            float price = cursor.getFloat(priceColumnIndex);
             String supplier = cursor.getString(supplierColumnIndex);
             String supplierContact = cursor.getString(supplierContactColumnIndex);
 
             // Update the views on the screen with the values from the database
             productTitle.setText(desc);
             productQuantity.setText(String.valueOf(quantity));
-            productPrice.setText(String.valueOf(price));
             supplierName.setText(String.valueOf(supplier));
+
+            String priceStr = Utils.currencyFormatter(price);
+            productPrice.setText(priceStr);
 
             // Product image does not exist.
             // Set default image for product image. This image information is not saved to
@@ -754,7 +746,7 @@ public class EditorActivity
                         productImage.setVisibility(View.VISIBLE);
 
                         // If existing product is being updated
-                        if (mCurrentProductUri != null) {
+                        if (currentProductUri != null) {
                             Toast.makeText(
                                     EditorActivity.this,
                                     getString(R.string.editor_product_image_update_success),

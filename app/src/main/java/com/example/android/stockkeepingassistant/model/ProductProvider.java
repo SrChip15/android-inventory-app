@@ -232,7 +232,7 @@ public class ProductProvider extends ContentProvider {
         // Product image is not a required field. So, it is not validated here.
         String desc = contentValues.getAsString(ProductEntry.COLUMN_PRODUCT_DESC);
         Integer quantity = contentValues.getAsInteger(ProductEntry.COLUMN_PRODUCT_QUANTITY);
-        Integer price = contentValues.getAsInteger(ProductEntry.COLUMN_PRODUCT_PRICE);
+        Float price = contentValues.getAsFloat(ProductEntry.COLUMN_PRODUCT_PRICE);
         String supplier = contentValues.getAsString(ProductEntry.COLUMN_PRODUCT_SUPPLIER);
         String supplierContact = contentValues.getAsString(ProductEntry.COLUMN_PRODUCT_SUPPLIER_CONTACT);
 
@@ -303,7 +303,7 @@ public class ProductProvider extends ContentProvider {
                 }
             } else if (values.containsKey(ProductEntry.COLUMN_PRODUCT_PRICE)) {
                 // Check for valid price information
-                Integer price = values.getAsInteger(ProductEntry.COLUMN_PRODUCT_PRICE);
+                Float price = values.getAsFloat(ProductEntry.COLUMN_PRODUCT_PRICE);
                 if (price == null || price <= 0) {
                     throw new IllegalArgumentException(context.getString(R.string.update_product_no_price));
                 }

@@ -30,7 +30,7 @@
     <string name="supplier_4">Target</string>
 
     <!-- Label for supplier 5 contact dropdown menu option [CHAR LIMIT=20] -->
-    <string name="supplier_5">Walmart</string>
+    <string name="supplier_5">InformIT</string>
 
     <!-- Label for supplier 6 contact dropdown menu option [CHAR LIMIT=20] -->
     <string name="supplier_6">Paper Source</string>
@@ -181,5 +181,8 @@
 
     <!-- Toast message to the user when product image for existing product is added/edited [CHAR LIMIT=30] -->
     <string name="editor_product_image_update_success">Product image successfully updated</string>
+    <string name="price">Price</string>
+    <string name="product_image_cd">Product Image</string>
+    <string name="product_camera_cd">button that opens mobile camera to capture product image</string>
 
 </resources>

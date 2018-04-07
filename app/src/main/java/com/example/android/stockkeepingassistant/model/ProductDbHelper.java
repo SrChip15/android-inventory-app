@@ -16,7 +16,7 @@ public class ProductDbHelper extends SQLiteOpenHelper {
 			ProductEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
 			ProductEntry.COLUMN_PRODUCT_DESC + " TEXT NOT NULL, " +
 			ProductEntry.COLUMN_PRODUCT_QUANTITY + " INTEGER NOT NULL DEFAULT 0, " +
-			ProductEntry.COLUMN_PRODUCT_PRICE + " INTEGER NOT NULL, " +
+			ProductEntry.COLUMN_PRODUCT_PRICE + " REAL NOT NULL, " +
 			ProductEntry.COLUMN_PRODUCT_SUPPLIER + " TEXT NOT NULL, " +
 			ProductEntry.COLUMN_PRODUCT_SUPPLIER_CONTACT + " TEXT NOT NULL);";
 

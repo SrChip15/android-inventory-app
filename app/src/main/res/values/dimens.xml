@@ -19,7 +19,7 @@
     <dimen name="sell_button_height">50dp</dimen>
 
     <!-- Top margin for "order more" button in the editor activity in detailed view mode -->
-    <dimen name="top_margin_order_more_button">120dp</dimen>
+    <dimen name="top_margin_order_more_button">80dp</dimen>
 
     <!-- Spinner height in EditorActivity -->
     <dimen name="spinner_height">48dp</dimen>

@@ -15,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.stockkeepingassistant.R;
+import com.example.android.stockkeepingassistant.Utils;
 import com.example.android.stockkeepingassistant.model.ProductContract.ProductEntry;
 
 public class ProductCursorAdapter
@@ -87,7 +88,7 @@ public class ProductCursorAdapter
 		int rowId = cursor.getInt(rowIdColumnIndex);
 		final String productDesc = cursor.getString(descColumnIndex);
 		final int quantity = cursor.getInt(quantityColumnIndex);
-		final int price = cursor.getInt(priceColumnIndex);
+		final float price = cursor.getFloat(priceColumnIndex);
 
 		// Setup listener on sell button
 		holder.sellButtonView.setOnClickListener(this);
@@ -99,9 +100,10 @@ public class ProductCursorAdapter
 		// Update Views with the attributes of the current product
 		holder.productDescTextView.setText(productDesc);
 		holder.productQuantityTextView.setText(String.valueOf(quantity));
-		holder.productPriceTextView.setText(context.getString(R.string.list_item_price_label));
-		holder.productPriceTextView.append(String.valueOf(price));
+        holder.productPriceTextView.setText(context.getString(R.string.list_item_price_label));
 
+        String priceStr = Utils.currencyFormatter(price);
+        holder.productPriceTextView.append(priceStr);
 	}
 
 	@Override
