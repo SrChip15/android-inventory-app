@@ -274,14 +274,14 @@ public class EditorActivity
     private void setupSpinner() {
         // Create adapter for spinner. The list options are from the String array it will use
         // the spinner will use the default layout
-        ArrayAdapter genderSpinnerAdapter = ArrayAdapter.createFromResource(this,
+        ArrayAdapter supplierSpinnerAdapter = ArrayAdapter.createFromResource(this,
                 R.array.array_supplier_contact_option, android.R.layout.simple_spinner_item);
 
         // Specify dropdown layout style - simple list view with 1 item per line
-        genderSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
+        supplierSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
 
         // Apply the adapter to the spinner
-        supplierEmailPicker.setAdapter(genderSpinnerAdapter);
+        supplierEmailPicker.setAdapter(supplierSpinnerAdapter);
 
         // Set the integer mSelected to the constant values
         supplierEmailPicker.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
