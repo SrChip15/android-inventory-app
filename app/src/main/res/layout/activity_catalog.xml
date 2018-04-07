@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="@dimen/normal_margin"
-    tools:context="com.example.android.stockkeepingassistant.CatalogActivity">
+    tools:context=".view.ui.CatalogActivity">
 
     <!-- List of products -->
     <ListView

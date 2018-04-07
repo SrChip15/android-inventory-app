@@ -1,4 +1,4 @@
-package com.example.android.stockkeepingassistant;
+package com.example.android.stockkeepingassistant.view.ui;
 
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ContentUris;
@@ -14,7 +14,9 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.example.android.stockkeepingassistant.R;
 import com.example.android.stockkeepingassistant.data.ProductContract.ProductEntry;
+import com.example.android.stockkeepingassistant.view.adapter.ProductCursorAdapter;
 
 public class CatalogActivity
 		extends AppCompatActivity

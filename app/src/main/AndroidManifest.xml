@@ -14,7 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".CatalogActivity">
+        <activity android:name=".view.ui.CatalogActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
@@ -22,8 +22,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".EditorActivity"
-            android:parentActivityName=".CatalogActivity"
+            android:name=".view.ui.EditorActivity"
+            android:parentActivityName=".view.ui.CatalogActivity"
             android:theme="@style/EditorTheme">
         </activity>
 
