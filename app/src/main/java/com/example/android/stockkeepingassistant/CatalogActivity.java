@@ -33,13 +33,10 @@ public class CatalogActivity
 
 		// Setup FAB to open EditorActivity
 		FloatingActionButton fab = findViewById(R.id.fab);
-		fab.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				Intent intent = new Intent(CatalogActivity.this, EditorActivity.class);
-				startActivity(intent);
-			}
-		});
+		fab.setOnClickListener(view -> {
+            Intent intent = new Intent(CatalogActivity.this, EditorActivity.class);
+            startActivity(intent);
+        });
 
 		// Find the ListView which will be populated with the pet data
 		ListView productListView = findViewById(R.id.list);
@@ -80,19 +77,18 @@ public class CatalogActivity
 		// Define a projection that specifies the columns from the table we care about.
 		String[] projection = {
 				ProductEntry._ID,
-				ProductEntry.COLUMN_PRODUCT_IMAGE,
 				ProductEntry.COLUMN_PRODUCT_DESC,
 				ProductEntry.COLUMN_PRODUCT_QUANTITY,
 				ProductEntry.COLUMN_PRODUCT_PRICE
 		};
 
 		// This loader will execute the ContentProvider's query method on a background thread
-		return new CursorLoader(CatalogActivity.this,           // Parent activity context
+		return new CursorLoader(CatalogActivity.this,   // Parent activity context
 				ProductEntry.CONTENT_URI,                       // Provider content URI to query
 				projection,                                     // Columns to include in the resulting Cursor
-				null,                                           // No selection clause
-				null,                                           // No selection arguments
-				null);                                          // Default sort order
+				null,                                  // No selection clause
+				null,                              // No selection arguments
+				null);                                // Default sort order
 	}
 
 	@Override
