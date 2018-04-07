@@ -8,8 +8,8 @@ import com.example.android.stockkeepingassistant.data.ProductContract.ProductEnt
 
 public class ProductDbHelper extends SQLiteOpenHelper {
 	// If you change the database schema, you must increment the database version.
-	public static final int DATABASE_VERSION = 1;
-	public static final String DATABASE_NAME = "products.db";
+	private static final int DATABASE_VERSION = 1;
+	private static final String DATABASE_NAME = "products.db";
 
 	// SQL queries
 	private static final String SQL_CREATE_ENTRIES = "CREATE TABLE " + ProductEntry.TABLE_NAME + "(" +
@@ -20,7 +20,7 @@ public class ProductDbHelper extends SQLiteOpenHelper {
 			ProductEntry.COLUMN_PRODUCT_SUPPLIER + " TEXT NOT NULL, " +
 			ProductEntry.COLUMN_PRODUCT_SUPPLIER_CONTACT + " TEXT NOT NULL);";
 
-	public ProductDbHelper(Context context) {
+	ProductDbHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}
 
