@@ -1,7 +1,6 @@
 package com.example.android.stockkeepingassistant.view.ui;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.LoaderManager.LoaderCallbacks;
@@ -25,12 +24,14 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -43,17 +44,18 @@ import android.widget.Toast;
 import com.example.android.stockkeepingassistant.R;
 import com.example.android.stockkeepingassistant.Utils;
 import com.example.android.stockkeepingassistant.model.ProductContract.ProductEntry;
+import com.example.android.stockkeepingassistant.model.Warehouse;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 
 public class EditorActivity
         extends AppCompatActivity
-        implements LoaderCallbacks<Cursor> {
+        implements LoaderCallbacks<Cursor>, TextWatcher, OnClickListener {
 
     public static final String TAG = EditorActivity.class.getSimpleName();
     private static final int EXISTING_PRODUCT_LOADER = 1;
-    public static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 123;
+    public static final int REQUEST_READ_EXTERNAL_STORAGE = 123;
 
     /** Spinner for choosing supplier contact */
     private Spinner supplierEmailPicker;
@@ -85,19 +87,6 @@ public class EditorActivity
     /** Boolean flag that tracks whether the product has been edited (true) or not (false) */
     private boolean productHasChanged = false;
 
-    /**
-     * OnTouchListener that listens for any user touches on a View, implying that they are modifying
-     * the view, and we change the productHasChanged boolean to true.
-     */
-    private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
-        @SuppressLint("ClickableViewAccessibility")
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            productHasChanged = true;
-            return false;
-        }
-    };
-
     /** Content URI for the existing product (null if it's a new product) */
     private Uri currentProductUri;
 
@@ -119,17 +108,16 @@ public class EditorActivity
         Button increaseQuantityButton = findViewById(R.id.editor_quantity_increment);
         Button decreaseQuantityButton = findViewById(R.id.editor_quantity_decrement);
 
-        // Setup OnTouchListeners on all the input fields, so we can determine if the user
-        // has touched or modified them. This will let us know if there are unsaved changes
-        // or not, if the user tries to leave the editor without saving.
-        productTitle.setOnTouchListener(mTouchListener);
-        productQuantity.setOnTouchListener(mTouchListener);
-        productPrice.setOnTouchListener(mTouchListener);
-        supplierName.setOnTouchListener(mTouchListener);
-        supplierEmailPicker.setOnTouchListener(mTouchListener);
-        productCamera.setOnTouchListener(mTouchListener);
-        increaseQuantityButton.setOnTouchListener(mTouchListener);
-        decreaseQuantityButton.setOnTouchListener(mTouchListener);
+        // Setup Text Watchers on all the input fields, so we can determine if the user
+        // has modified them. This will let us know if there are unsaved changes
+        // or not, when the user tries to leave the editor without saving.
+        productTitle.addTextChangedListener(this);
+        productQuantity.addTextChangedListener(this);
+        productPrice.addTextChangedListener(this);
+        supplierName.addTextChangedListener(this);
+
+        increaseQuantityButton.setOnClickListener(this);
+        decreaseQuantityButton.setOnClickListener(this);
 
         // Set default text on quantity field
         productQuantity.setText(String.valueOf(0));
@@ -258,14 +246,17 @@ public class EditorActivity
 
         // Show dialog that there are unsaved changes
         showUnsavedChangesDialog(discardButtonClickListener);
+        productHasChanged = false;
     }
 
-    /** Setup the dropdown spinner that allows the user to select the supplier's email.*/
+    /** Setup the dropdown spinner that allows the user to select the supplier's email. */
     private void setupSpinner() {
         // Create adapter for spinner. The list options are from the String array it will use
         // the spinner will use the default layout
         ArrayAdapter supplierSpinnerAdapter = ArrayAdapter.createFromResource(this,
                 R.array.array_supplier_contact_option, android.R.layout.simple_spinner_item);
+
+        Warehouse warehouse = Warehouse.getInstance(EditorActivity.this);
 
         // Specify dropdown layout style - simple list view with 1 item per line
         supplierSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
@@ -279,34 +270,15 @@ public class EditorActivity
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String selection = (String) parent.getItemAtPosition(position);
                 if (!TextUtils.isEmpty(selection)) {
-                    if (selection.equals(getString(R.string.supplier_1))) {
-                        supplierEmail = ProductEntry.SUPPLIER_1; // Supplier 1 email ID
-                    } else if (selection.equals(getString(R.string.supplier_2))) {
-                        supplierEmail = ProductEntry.SUPPLIER_2; // Supplier 2 email ID
-                    } else if (selection.equals(getString(R.string.supplier_3))) {
-                        supplierEmail = ProductEntry.SUPPLIER_3; // Supplier 3 email ID
-                    } else if (selection.equals(getString(R.string.supplier_4))) {
-                        supplierEmail = ProductEntry.SUPPLIER_4; // Supplier 4 email ID
-                    } else if (selection.equals(getString(R.string.supplier_5))) {
-                        supplierEmail = ProductEntry.SUPPLIER_5; // Supplier 5 email ID
-                    } else if (selection.equals(getString(R.string.supplier_6))) {
-                        supplierEmail = ProductEntry.SUPPLIER_6; // Supplier 6 email ID
-                    } else if (selection.equals(getString(R.string.supplier_7))) {
-                        supplierEmail = ProductEntry.SUPPLIER_7; // Supplier 7 email ID
-                    } else if (selection.equals(getString(R.string.supplier_8))) {
-                        supplierEmail = ProductEntry.SUPPLIER_8; // Supplier 8 email ID
-                    } else if (selection.equals(getString(R.string.supplier_9))) {
-                        supplierEmail = ProductEntry.SUPPLIER_9; // Supplier 9 email ID
-                    } else {
-                        supplierEmail = ProductEntry.SUPPLIER_10; // Supplier 10 email ID
-                    }
+                    supplierEmail = warehouse.resolveEmail(selection);
                 }
             }
 
             // Because AdapterView is an abstract class, onNothingSelected must be defined
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                supplierEmail = ProductEntry.SUPPLIER_1; // Supplier 1 email ID
+                String firstInList = (String) parent.getItemAtPosition(0);
+                supplierEmail = warehouse.resolveEmail(firstInList); // Supplier 1 email ID
             }
         });
     }
@@ -325,6 +297,7 @@ public class EditorActivity
         values.put(ProductEntry.COLUMN_PRODUCT_DESC, productDesc);
         values.put(ProductEntry.COLUMN_PRODUCT_SUPPLIER, productSupplier);
         values.put(ProductEntry.COLUMN_PRODUCT_SUPPLIER_CONTACT, supplierEmail);
+        Log.d(TAG, "saveProduct(); email: " + supplierEmail);
 
         // If the quantity is not provided by the user, don't try to parse the string into an
         // integer value. Use 0 by default.
@@ -435,43 +408,11 @@ public class EditorActivity
     public void orderMore(View view) {
         // Get the position of the item the spinner is set at
         int position = supplierEmailPicker.getSelectedItemPosition();
+        String supplier = (String) supplierEmailPicker.getItemAtPosition(position);
 
         // Declare string to hold the supplier's email ID
-        String supplierEmail;
-
-        // Filter on spinner item position
-        switch (position) {
-            case 0:
-                supplierEmail = ProductEntry.SUPPLIER_1;
-                break;
-            case 1:
-                supplierEmail = ProductEntry.SUPPLIER_2;
-                break;
-            case 2:
-                supplierEmail = ProductEntry.SUPPLIER_3;
-                break;
-            case 3:
-                supplierEmail = ProductEntry.SUPPLIER_4;
-                break;
-            case 4:
-                supplierEmail = ProductEntry.SUPPLIER_5;
-                break;
-            case 5:
-                supplierEmail = ProductEntry.SUPPLIER_6;
-                break;
-            case 6:
-                supplierEmail = ProductEntry.SUPPLIER_7;
-                break;
-            case 7:
-                supplierEmail = ProductEntry.SUPPLIER_8;
-                break;
-            case 8:
-                supplierEmail = ProductEntry.SUPPLIER_9;
-                break;
-            default:
-                supplierEmail = ProductEntry.SUPPLIER_10;
-                break;
-        }
+        Warehouse warehouse = Warehouse.getInstance(this);
+        String supplierEmail = warehouse.resolveEmail(supplier);
 
         // Create email intent
         Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
@@ -559,26 +500,24 @@ public class EditorActivity
      * Show a dialog that warns the user there are unsaved changes that will be lost
      * if they continue leaving the editor.
      */
-    private void showUnsavedChangesDialog(
-            DialogInterface.OnClickListener discardButtonClickListener) {
+    private void showUnsavedChangesDialog(DialogInterface.OnClickListener discardButtonClickListener) {
         // Create an AlertDialog.Builder and set the message, and click listeners
-        // for the postivie and negative buttons on the dialog.
+        // for the positive and negative buttons on the dialog.
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.unsaved_changes_dialog_msg);
         builder.setPositiveButton(R.string.discard, discardButtonClickListener);
-        builder.setNegativeButton(R.string.keep_editing, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                // User clicked the "Keep editing" button, so dismiss the dialog
-                // and continue editing the product.
-                if (dialog != null) {
-                    dialog.dismiss();
-                }
+        builder.setNegativeButton(R.string.keep_editing, (dialog, id) -> {
+            // User clicked the "Keep editing" button, so dismiss the dialog
+            // and continue editing the product.
+            if (dialog != null) {
+                dialog.dismiss();
             }
         });
 
         // Create and show the AlertDialog
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
+        productHasChanged = false;
     }
 
     @Override
@@ -595,12 +534,14 @@ public class EditorActivity
         };
 
         // This loader will execute the ContentProvider's query method on a background thread
-        return new CursorLoader(this,           // Parent activity context
+        return new CursorLoader(
+                this,                  // Parent activity context
                 currentProductUri,             // Query the content URI for the current product
-                projection,                     // Columns to include in the resulting Cursor
-                null,                           // No selection clause
-                null,                           // No selection arguments
-                null);                          // Default sort order
+                projection,                    // Columns to include in the resulting Cursor
+                null,                 // No selection clause
+                null,             // No selection arguments
+                null                 // Default sort order
+        );
     }
 
     @Override
@@ -635,44 +576,18 @@ public class EditorActivity
             productPrice.setText(priceStr);
 
             // Product image does not exist.
-            // Set default image for product image. This image information is not saved to
-            // database, purely UI fix.
+            // Set default image (not saved to db) for product image (consistent UI fix)
             productImage.setImageResource(R.drawable.no_prod_img);
-
 
             // Supplier contact information is a spinner drop down.
             // Map the constant value from database into one of the drop-down options
-            switch (supplierContact) {
-                case ProductEntry.SUPPLIER_1:
-                    supplierEmailPicker.setSelection(0);
+            Warehouse warehouse = Warehouse.getInstance(this);
+            String[] supplierNames = this.getResources().getStringArray(R.array.array_supplier_contact_option);
+            for (int i = 0; i < supplierNames.length; i++) {
+                if (supplierNames[i].equals(warehouse.resolveName(supplierContact))) {
+                    supplierEmailPicker.setSelection(i);
                     break;
-                case ProductEntry.SUPPLIER_2:
-                    supplierEmailPicker.setSelection(1);
-                    break;
-                case ProductEntry.SUPPLIER_3:
-                    supplierEmailPicker.setSelection(2);
-                    break;
-                case ProductEntry.SUPPLIER_4:
-                    supplierEmailPicker.setSelection(3);
-                    break;
-                case ProductEntry.SUPPLIER_5:
-                    supplierEmailPicker.setSelection(4);
-                    break;
-                case ProductEntry.SUPPLIER_6:
-                    supplierEmailPicker.setSelection(5);
-                    break;
-                case ProductEntry.SUPPLIER_7:
-                    supplierEmailPicker.setSelection(6);
-                    break;
-                case ProductEntry.SUPPLIER_8:
-                    supplierEmailPicker.setSelection(7);
-                    break;
-                case ProductEntry.SUPPLIER_9:
-                    supplierEmailPicker.setSelection(8);
-                    break;
-                default:
-                    supplierEmailPicker.setSelection(9);
-                    break;
+                }
             }
         }
     }
@@ -754,11 +669,11 @@ public class EditorActivity
                             )
                                     .show();
                         }
-                        // Product image information has changed, so set it to true
+/*                        // Product image information has changed, so set it to true
                         productHasChanged = true;
 
                         // Remove upload button from view
-                        productCamera.setVisibility(View.GONE);
+                        productCamera.setVisibility(View.GONE);*/
                     }
             }
         }
@@ -822,7 +737,7 @@ public class EditorActivity
                             .requestPermissions(
                                     (Activity) context,
                                     new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                                    MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+                                    REQUEST_READ_EXTERNAL_STORAGE);
                 }
                 return false;
             } else {
@@ -841,13 +756,9 @@ public class EditorActivity
         alertBuilder.setTitle("Permission necessary");
         alertBuilder.setMessage("External storage" + " permission is necessary");
         alertBuilder.setPositiveButton(android.R.string.yes,
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        ActivityCompat.requestPermissions((Activity) context,
-                                new String[]{permission},
-                                MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-                    }
-                });
+                (dialog, which) -> ActivityCompat.requestPermissions((Activity) context,
+                        new String[]{permission},
+                        REQUEST_READ_EXTERNAL_STORAGE));
         AlertDialog alert = alertBuilder.create();
         alert.show();
     }
@@ -856,7 +767,7 @@ public class EditorActivity
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE:
+            case REQUEST_READ_EXTERNAL_STORAGE:
                 if (!(grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                     Toast.makeText(EditorActivity.this, "Media Permission Denied",
                             Toast.LENGTH_SHORT).show();
@@ -867,5 +778,25 @@ public class EditorActivity
                 super.onRequestPermissionsResult(requestCode, permissions,
                         grantResults);
         }
+    }
+
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        /* no-op */
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+        // TODO: 4/7/18 write logic to determine actual change and assign val to productHasChanged var
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+        /* no-op */
+    }
+
+    @Override
+    public void onClick(View v) {
+        productHasChanged = true;
     }
 }

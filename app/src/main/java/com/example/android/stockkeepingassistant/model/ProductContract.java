@@ -47,17 +47,6 @@ public final class ProductContract {
 		public static final String COLUMN_PRODUCT_QUANTITY = "quantity";
 		public static final String COLUMN_PRODUCT_SUPPLIER = "supplier";
 		public static final String COLUMN_PRODUCT_SUPPLIER_CONTACT = "supplier_email";
-
-		public static final String SUPPLIER_1 = "supplier_1@gmail.com";
-		public static final String SUPPLIER_2 = "supplier_2@gmail.com";
-		public static final String SUPPLIER_3 = "supplier_3@gmail.com";
-		public static final String SUPPLIER_4 = "supplier_4@gmail.com";
-		public static final String SUPPLIER_5 = "supplier_5@gmail.com";
-		public static final String SUPPLIER_6 = "supplier_6@gmail.com";
-		public static final String SUPPLIER_7 = "supplier_7@gmail.com";
-		public static final String SUPPLIER_8 = "supplier_8@gmail.com";
-		public static final String SUPPLIER_9 = "supplier_9@gmail.com";
-		public static final String SUPPLIER_10 = "supplier_10@gmail.com";
 	}
 
 }
