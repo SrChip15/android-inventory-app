@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!-- Layout for the editor -->
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -130,26 +129,6 @@
                 style="@style/CategoryStyle"
                 android:text="@string/category_supplier" />
 
-            <!-- Supplier's name field -->
-            <EditText
-                android:id="@+id/editor_product_supplier_name"
-                style="@style/EditorFieldStyle"
-                android:layout_weight="2"
-                android:hint="@string/hint_product_supplier_name"
-                android:inputType="textCapWords" />
-        </LinearLayout>
-
-        <!-- Supplier contact -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <!-- Label -->
-            <TextView
-                style="@style/CategoryStyle"
-                android:text="@string/category_supplier_contact" />
-
             <!-- Input field -->
             <LinearLayout
                 android:layout_width="0dp"
@@ -166,6 +145,25 @@
                     android:paddingStart="@dimen/medium_margin"
                     android:spinnerMode="dropdown" />
             </LinearLayout>
+        </LinearLayout>
+
+        <!-- Supplier contact -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <!-- Label -->
+            <TextView
+                style="@style/CategoryStyle"
+                android:text="@string/category_supplier_contact" />
+
+            <TextView
+                android:id="@+id/editor_supplier_email"
+                style="@style/EditorFieldStyle"
+                android:layout_weight="2"
+                tools:text="target@gmail.com" />
+
         </LinearLayout>
 
         <!-- Button to order more from product supplier -->
