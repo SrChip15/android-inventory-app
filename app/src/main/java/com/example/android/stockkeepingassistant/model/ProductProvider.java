@@ -95,7 +95,7 @@ public class ProductProvider extends ContentProvider {
                 );
                 break;
             case PRODUCT_ID:
-                selection = ProductEntry._ID + "=?";
+                selection = ProductEntry.UUID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 cursor = db.query(
                         ProductContract.ProductEntry.TABLE_NAME,
@@ -179,8 +179,7 @@ public class ProductProvider extends ContentProvider {
                 // Return number of records deleted
                 return numRecordsDeleted;
             case PRODUCT_ID:
-                // Set selection to row ID
-                selection = ProductEntry._ID + "=?";
+                selection = ProductEntry.UUID + "=?";
 
                 // Parse the row ID from the URI.
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
@@ -197,9 +196,9 @@ public class ProductProvider extends ContentProvider {
                 // Return number of rows deleted
                 return numRecordsDeleted;
             default:
-                throw
-                        new IllegalArgumentException(context
-                                .getString(R.string.delete_product_failure) + uri);
+                throw new IllegalArgumentException(
+                        context.getString(R.string.delete_product_failure) + uri
+                );
         }
     }
 
@@ -216,7 +215,7 @@ public class ProductProvider extends ContentProvider {
             case PRODUCTS:
                 return updateProduct(uri, values, selection, selectionArgs);
             case PRODUCT_ID:
-                selection = ProductEntry._ID + "=?";
+                selection = ProductEntry.UUID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 return updateProduct(uri, values, selection, selectionArgs);
             default:
@@ -224,20 +223,26 @@ public class ProductProvider extends ContentProvider {
         }
     }
 
+    @Nullable
     private Uri insertProduct(Uri uri, @Nullable ContentValues contentValues) {
         if (contentValues == null) {
             return null;
         }
         // Get values from contentValues to validate.
         // Product image is not a required field. So, it is not validated here.
-        String desc = contentValues.getAsString(ProductEntry.COLUMN_PRODUCT_DESC);
+        String uuidString = contentValues.getAsString(ProductEntry.UUID);
+        String title = contentValues.getAsString(ProductEntry.COLUMN_PRODUCT_TITLE);
         Integer quantity = contentValues.getAsInteger(ProductEntry.COLUMN_PRODUCT_QUANTITY);
         Float price = contentValues.getAsFloat(ProductEntry.COLUMN_PRODUCT_PRICE);
-        String supplier = contentValues.getAsString(ProductEntry.COLUMN_PRODUCT_SUPPLIER);
-        String supplierContact = contentValues.getAsString(ProductEntry.COLUMN_PRODUCT_SUPPLIER_CONTACT);
+        String supplierName = contentValues.getAsString(ProductEntry.COLUMN_SUPPLIER_NAME);
+        String supplierEmail = contentValues.getAsString(ProductEntry.COLUMN_SUPPLIER_EMAIL);
+
+        if (uuidString == null) {
+            throw new IllegalArgumentException("Product class did not generate ID!");
+        }
 
         // Check whether product description is provided
-        if (desc == null) {
+        if (title == null) {
             throw new IllegalArgumentException(context.getString(R.string.insert_product_no_name));
         }
 
@@ -253,12 +258,12 @@ public class ProductProvider extends ContentProvider {
         }
 
         // Check whether supplier information is provided
-        if (supplier == null || supplier.isEmpty()) {
+        if (supplierName == null || supplierName.isEmpty()) {
             throw new IllegalArgumentException(context.getString(R.string.insert_product_no_supplier));
         }
 
         // Check whether supplier contact information is provided
-        if (supplierContact == null || supplierContact.isEmpty()) {
+        if (supplierEmail == null || supplierEmail.isEmpty()) {
             throw new IllegalArgumentException(context.getString(R.string.insert_product_no_supplier_contact));
         }
 
@@ -286,12 +291,12 @@ public class ProductProvider extends ContentProvider {
 
     private int updateProduct(Uri uri,
                               @Nullable ContentValues values,
-                              String selection,
-                              String[] selectionArgs) {
+                              @Nullable String selection,
+                              @Nullable String[] selectionArgs) {
         if (values != null && values.size() != 0) {
             // Check for valid product description
-            if (values.containsKey(ProductEntry.COLUMN_PRODUCT_DESC)) {
-                String desc = values.getAsString(ProductEntry.COLUMN_PRODUCT_DESC);
+            if (values.containsKey(ProductEntry.COLUMN_PRODUCT_TITLE)) {
+                String desc = values.getAsString(ProductEntry.COLUMN_PRODUCT_TITLE);
                 if (desc == null) {
                     throw new IllegalArgumentException(context.getString(R.string.update_product_no_desc));
                 }
@@ -307,15 +312,15 @@ public class ProductProvider extends ContentProvider {
                 if (price == null || price <= 0) {
                     throw new IllegalArgumentException(context.getString(R.string.update_product_no_price));
                 }
-            } else if (values.containsKey(ProductEntry.COLUMN_PRODUCT_SUPPLIER)) {
+            } else if (values.containsKey(ProductEntry.COLUMN_SUPPLIER_NAME)) {
                 // Check for valid supplier information
-                String supplier = values.getAsString(ProductEntry.COLUMN_PRODUCT_SUPPLIER);
+                String supplier = values.getAsString(ProductEntry.COLUMN_SUPPLIER_NAME);
                 if (supplier == null || supplier.isEmpty()) {
                     throw new IllegalArgumentException(context.getString(R.string.update_product_no_supplier));
                 }
-            } else if (values.containsKey(ProductEntry.COLUMN_PRODUCT_SUPPLIER_CONTACT)) {
+            } else if (values.containsKey(ProductEntry.COLUMN_SUPPLIER_EMAIL)) {
                 // Check for valid supplier contact information
-                String contact = values.getAsString(ProductEntry.COLUMN_PRODUCT_SUPPLIER_CONTACT);
+                String contact = values.getAsString(ProductEntry.COLUMN_SUPPLIER_EMAIL);
                 if (contact == null || contact.isEmpty()) {
                     throw new IllegalArgumentException(context.getString(R.string.update_product_no_supplier_contact));
                 }

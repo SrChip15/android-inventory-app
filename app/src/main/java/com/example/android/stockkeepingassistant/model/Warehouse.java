@@ -1,12 +1,21 @@
 package com.example.android.stockkeepingassistant.model;
 
 import android.annotation.SuppressLint;
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.example.android.stockkeepingassistant.R;
+import com.example.android.stockkeepingassistant.model.ProductContract.ProductEntry;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class Warehouse {
     /* Class variables */
@@ -14,32 +23,7 @@ public class Warehouse {
     @SuppressLint("StaticFieldLeak")
     private static Warehouse warehouse;
     private Map<String, String> supplierToEmailMap;
-
-    private Warehouse(Context context) {
-        this.context = context;
-        makeEmailDirectory();
-    }
-
-    public static Warehouse getInstance(Context context) {
-        if (warehouse == null) {
-            warehouse = new Warehouse(context.getApplicationContext());
-        }
-
-        return warehouse;
-    }
-
-    public String resolveEmail(String supplierName) {
-        return supplierToEmailMap.get(supplierName);
-    }
-
-    public String resolveName(String supplierEmail) {
-        for (Map.Entry<String, String> entry : supplierToEmailMap.entrySet()) {
-            if (entry.getValue().equals(supplierEmail)) {
-                return entry.getKey();
-            }
-        }
-        return null;
-    }
+    private SQLiteDatabase database;
 
     private void makeEmailDirectory() {
         supplierToEmailMap = new HashMap<>(10);
@@ -53,5 +37,98 @@ public class Warehouse {
         supplierToEmailMap.put(context.getString(R.string.supplier_8), "best.buy@gmail.com");
         supplierToEmailMap.put(context.getString(R.string.supplier_9), "office.max@gmail.com");
         supplierToEmailMap.put(context.getString(R.string.supplier_10), "booksmith@gmail.com");
+    }
+
+    private Warehouse(Context context) {
+        this.context = context;
+        makeEmailDirectory();
+
+        database = new ProductDbHelper(this.context).getWritableDatabase();
+    }
+
+    public static Warehouse getInstance(@NonNull Context context) {
+        if (warehouse == null) {
+            warehouse = new Warehouse(context.getApplicationContext());
+        }
+
+        return warehouse;
+    }
+
+    public String resolveEmail(String supplierName) {
+        return supplierToEmailMap.get(supplierName);
+    }
+
+    @Nullable
+    public String resolveName(String supplierEmail) {
+        for (Map.Entry<String, String> entry : supplierToEmailMap.entrySet()) {
+            if (entry.getValue().equals(supplierEmail)) {
+                return entry.getKey();
+            }
+        }
+        return null;
+    }
+
+    public void addProduct(Product p) {
+        ContentValues values = getContentValues(p);
+
+        database.insert(ProductEntry.TABLE_NAME, null, values);
+    }
+
+    @Nullable
+    public List<Product> getProducts() {
+        List<Product> products = new ArrayList<>();
+        ProductCursorWrapper cursor = queryProducts(null, null);
+
+        try {
+            if (cursor.getCount() == 0) {
+                return null;
+            }
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                   products.add(cursor.getProduct());
+                   cursor.moveToNext();
+            }
+        } finally {
+            cursor.close();
+        }
+
+        return products;
+    }
+
+    @Nullable
+    public Product getProduct(UUID productId) {
+        try (ProductCursorWrapper cursor =
+                     queryProducts(ProductEntry.UUID + " = ?", new String[]{productId.toString()})) {
+            if (cursor.getColumnCount() == 0) {
+                return null;
+            }
+            cursor.moveToFirst();
+            return cursor.getProduct();
+        }
+    }
+
+    @SuppressLint("Recycle")
+    private ProductCursorWrapper queryProducts(@Nullable String where, @Nullable String[] args) {
+       Cursor c = context.getContentResolver().query(
+                ProductEntry.CONTENT_URI,
+                null,
+                where,
+                args,
+                null
+        );
+
+        return new ProductCursorWrapper(c);
+    }
+
+    private ContentValues getContentValues(Product product) {
+        ContentValues values = new ContentValues();
+        values.put(ProductEntry.UUID, product.getId().toString());
+        values.put(ProductEntry.COLUMN_PRODUCT_TITLE, product.getTitle());
+        values.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, product.getQuantity());
+//        values.put(ProductEntry.COLUMN_PRODUCT_PRICE, product.getPrice().toString());
+        values.put(ProductEntry.COLUMN_SUPPLIER_NAME, product.getSupplierName());
+        values.put(ProductEntry.COLUMN_SUPPLIER_EMAIL, product.getSupplierEmail());
+
+        return values;
     }
 }

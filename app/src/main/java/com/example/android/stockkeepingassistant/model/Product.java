@@ -13,8 +13,12 @@ public class Product {
     private String supplierEmail;
 
     public Product() {
-        id = UUID.randomUUID();
-        quantity = 1;
+        this(UUID.randomUUID());
+    }
+
+    public Product(UUID id) {
+       this.id = id;
+       quantity = 1;
     }
 
     public UUID getId() {
