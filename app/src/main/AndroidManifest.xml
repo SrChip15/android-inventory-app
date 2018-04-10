@@ -24,6 +24,8 @@
             android:name=".view.ui.EditorActivity"
             android:parentActivityName=".view.ui.CatalogActivity"
             android:theme="@style/EditorTheme" />
+        <activity android:name=".view.ui.ProductActivity" />
+
         <provider
             android:name=".model.ProductProvider"
             android:authorities="com.example.android.stockkeepingassistant"
