@@ -27,7 +27,7 @@
 
         <!-- Product description -->
         <TextView
-            android:id="@+id/list_item_product_desc"
+            android:id="@+id/list_item_product_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"

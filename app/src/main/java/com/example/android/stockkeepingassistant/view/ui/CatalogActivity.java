@@ -1,85 +1,84 @@
 package com.example.android.stockkeepingassistant.view.ui;
 
-import android.app.LoaderManager.LoaderCallbacks;
-import android.content.ContentUris;
-import android.content.CursorLoader;
 import android.content.Intent;
-import android.content.Loader;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 
 import com.example.android.stockkeepingassistant.R;
-import com.example.android.stockkeepingassistant.model.ProductContract.ProductEntry;
-import com.example.android.stockkeepingassistant.view.adapter.ProductCursorAdapter;
+import com.example.android.stockkeepingassistant.model.Product;
+import com.example.android.stockkeepingassistant.model.Warehouse;
+import com.example.android.stockkeepingassistant.view.adapter.CatalogAdapter;
+
+import java.util.List;
 
 public class CatalogActivity
 		extends AppCompatActivity
-		implements LoaderCallbacks<Cursor> {
+		/*implements LoaderCallbacks<Cursor>*/ {
 
-	private ProductCursorAdapter mCursorAdapter;
-
-	private static final int PRODUCT_LOADER = 0;
+	//private static final int PRODUCT_LOADER = 0;
+	private static final String TAG = CatalogActivity.class.getSimpleName();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		// Inflate UI view
 		setContentView(R.layout.activity_catalog);
 
 		// Setup FAB to open EditorActivity
 		FloatingActionButton fab = findViewById(R.id.fab);
 		fab.setOnClickListener(view -> {
-            Intent intent = new Intent(CatalogActivity.this, EditorActivity.class);
+            Intent intent = new Intent(CatalogActivity.this, ProductActivity.class);
             startActivity(intent);
         });
 
 		// Find the ListView which will be populated with the pet data
-		ListView productListView = findViewById(R.id.list);
+		RecyclerView recyclerView = findViewById(R.id.list);
+		recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+		recyclerView.setHasFixedSize(true);
 
 		// Setup the item click listener
-		productListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				// Create new intent to go to EditorActivity
-				Intent editIntent = new Intent(CatalogActivity.this, EditorActivity.class);
+		/*productListView.setOnItemClickListener((parent, view, position, id) -> {
+		    Cursor c = (Cursor) parent.getItemAtPosition(position);
 
-				// Construct URI with id
-				Uri itemUri = ContentUris.withAppendedId(ProductEntry.CONTENT_URI, id);
+            // Create new intent to go to EditorActivity
+            Intent editIntent = new Intent(CatalogActivity.this, EditorActivity.class);
 
-				// Package the URI into the intent
-				editIntent.setData(itemUri);
+            // Construct URI with id
+			Log.d(TAG, "List Item: " + c.getCount());
+			c.close();
+            Uri itemUri = ContentUris.withAppendedId(ProductEntry.CONTENT_URI, id);
 
-				// Launch the activity
-				startActivity(editIntent);
-			}
-		});
+            // Package the URI into the intent
+            editIntent.setData(itemUri);
+
+            // Launch the activity
+            startActivity(editIntent);
+        });*/
 
 		// Find and set empty view on the ListView, so that it only shows when the list has 0 items.
-		View emptyView = findViewById(R.id.empty_view);
-		productListView.setEmptyView(emptyView);
+		/*View emptyView = findViewById(R.id.empty_view);
+		productListView.setEmptyView(emptyView);*/
 
 		// Setup an Adapter to create a list item for each row of product data in the Cursor.
-		mCursorAdapter = new ProductCursorAdapter(CatalogActivity.this, null);
-		productListView.setAdapter(mCursorAdapter);
+		Warehouse warehouse = Warehouse.getInstance(this);
+		List<Product> products = warehouse.getProducts();
 
-		// Kick off the loader
-		getLoaderManager().initLoader(PRODUCT_LOADER, null, this);
+		CatalogAdapter adapter = new CatalogAdapter(this, products);
+		recyclerView.setAdapter(adapter);
+
+		/*// Kick off the loader
+		getLoaderManager().initLoader(PRODUCT_LOADER, null, this);*/
 
 	}
 
-	@Override
+	/*@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		// Define a projection that specifies the columns from the table we care about.
 		String[] projection = {
 				ProductEntry._ID,
-				ProductEntry.COLUMN_PRODUCT_DESC,
+				ProductEntry.COLUMN_PRODUCT_TITLE,
 				ProductEntry.COLUMN_PRODUCT_QUANTITY,
 				ProductEntry.COLUMN_PRODUCT_PRICE
 		};
@@ -104,5 +103,5 @@ public class CatalogActivity
 		// Loader is being destroyed or the data is no longer current.
 		// Clear out adapter's reference to the cursor, prevents memory leaks
 		mCursorAdapter.swapCursor(null);
-	}
+	}*/
 }
