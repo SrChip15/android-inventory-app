@@ -11,7 +11,7 @@ import java.util.UUID;
 
 public class ProductCursorWrapper extends CursorWrapper {
 
-    public ProductCursorWrapper(@Nullable Cursor cursor) {
+    ProductCursorWrapper(@Nullable Cursor cursor) {
         super(cursor);
     }
 
@@ -19,7 +19,7 @@ public class ProductCursorWrapper extends CursorWrapper {
         String uuidString = getString(getColumnIndex(ProductEntry.UUID));
         String productTitle = getString(getColumnIndex(ProductEntry.COLUMN_PRODUCT_TITLE));
         int quantity = getInt(getColumnIndex(ProductEntry.COLUMN_PRODUCT_QUANTITY));
-        BigDecimal price = BigDecimal.valueOf(getFloat(getColumnIndex(ProductEntry.COLUMN_PRODUCT_PRICE)));
+        BigDecimal price = new BigDecimal(getString(getColumnIndex(ProductEntry.COLUMN_PRODUCT_PRICE)));
         String supplierName = getString(getColumnIndex(ProductEntry.COLUMN_SUPPLIER_NAME));
         String supplierEmail = getString(getColumnIndex(ProductEntry.COLUMN_SUPPLIER_EMAIL));
 

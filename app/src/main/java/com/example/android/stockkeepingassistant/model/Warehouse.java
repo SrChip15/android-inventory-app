@@ -85,8 +85,8 @@ public class Warehouse {
             }
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
-                   products.add(cursor.getProduct());
-                   cursor.moveToNext();
+                products.add(cursor.getProduct());
+                cursor.moveToNext();
             }
         } finally {
             cursor.close();
@@ -107,9 +107,16 @@ public class Warehouse {
         }
     }
 
+    public void updateProduct(Product product) {
+        String uuidString = product.getId().toString();
+        ContentValues values = getContentValues(product);
+
+        database.update(ProductEntry.TABLE_NAME, values, ProductEntry.UUID + " = ?", new String[]{uuidString});
+    }
+
     @SuppressLint("Recycle")
     private ProductCursorWrapper queryProducts(@Nullable String where, @Nullable String[] args) {
-       Cursor c = context.getContentResolver().query(
+        Cursor c = context.getContentResolver().query(
                 ProductEntry.CONTENT_URI,
                 null,
                 where,
@@ -125,7 +132,7 @@ public class Warehouse {
         values.put(ProductEntry.UUID, product.getId().toString());
         values.put(ProductEntry.COLUMN_PRODUCT_TITLE, product.getTitle());
         values.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, product.getQuantity());
-//        values.put(ProductEntry.COLUMN_PRODUCT_PRICE, product.getPrice().toString());
+        values.put(ProductEntry.COLUMN_PRODUCT_PRICE, product.getPrice().toString());
         values.put(ProductEntry.COLUMN_SUPPLIER_NAME, product.getSupplierName());
         values.put(ProductEntry.COLUMN_SUPPLIER_EMAIL, product.getSupplierEmail());
 

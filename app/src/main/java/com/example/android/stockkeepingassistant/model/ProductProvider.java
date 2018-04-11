@@ -233,16 +233,16 @@ public class ProductProvider extends ContentProvider {
         String uuidString = contentValues.getAsString(ProductEntry.UUID);
         String title = contentValues.getAsString(ProductEntry.COLUMN_PRODUCT_TITLE);
         Integer quantity = contentValues.getAsInteger(ProductEntry.COLUMN_PRODUCT_QUANTITY);
-        Float price = contentValues.getAsFloat(ProductEntry.COLUMN_PRODUCT_PRICE);
+        String price = contentValues.getAsString(ProductEntry.COLUMN_PRODUCT_PRICE);
         String supplierName = contentValues.getAsString(ProductEntry.COLUMN_SUPPLIER_NAME);
         String supplierEmail = contentValues.getAsString(ProductEntry.COLUMN_SUPPLIER_EMAIL);
 
-        if (uuidString == null) {
+        if (uuidString == null || uuidString.isEmpty()) {
             throw new IllegalArgumentException("Product class did not generate ID!");
         }
 
         // Check whether product description is provided
-        if (title == null) {
+        if (title == null || title.isEmpty()) {
             throw new IllegalArgumentException(context.getString(R.string.insert_product_no_name));
         }
 
@@ -253,7 +253,7 @@ public class ProductProvider extends ContentProvider {
         }
 
         // Check whether price information is provided
-        if (price == null || price <= 0) {
+        if (price == null || price.isEmpty()) {
             throw new IllegalArgumentException(context.getString(R.string.insert_product_no_price));
         }
 
@@ -296,8 +296,8 @@ public class ProductProvider extends ContentProvider {
         if (values != null && values.size() != 0) {
             // Check for valid product description
             if (values.containsKey(ProductEntry.COLUMN_PRODUCT_TITLE)) {
-                String desc = values.getAsString(ProductEntry.COLUMN_PRODUCT_TITLE);
-                if (desc == null) {
+                String title = values.getAsString(ProductEntry.COLUMN_PRODUCT_TITLE);
+                if (title == null || title.isEmpty()) {
                     throw new IllegalArgumentException(context.getString(R.string.update_product_no_desc));
                 }
             } else if (values.containsKey(ProductEntry.COLUMN_PRODUCT_QUANTITY)) {
@@ -308,8 +308,8 @@ public class ProductProvider extends ContentProvider {
                 }
             } else if (values.containsKey(ProductEntry.COLUMN_PRODUCT_PRICE)) {
                 // Check for valid price information
-                Float price = values.getAsFloat(ProductEntry.COLUMN_PRODUCT_PRICE);
-                if (price == null || price <= 0) {
+                String price = values.getAsString(ProductEntry.COLUMN_PRODUCT_PRICE);
+                if (price == null || price.isEmpty()) {
                     throw new IllegalArgumentException(context.getString(R.string.update_product_no_price));
                 }
             } else if (values.containsKey(ProductEntry.COLUMN_SUPPLIER_NAME)) {

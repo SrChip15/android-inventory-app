@@ -19,6 +19,10 @@ public class Product {
     public Product(UUID id) {
        this.id = id;
        quantity = 1;
+
+       // Detour to rounding up to 2 decimal places
+       BigDecimal init = new BigDecimal(0);
+       price = init.setScale(2, BigDecimal.ROUND_HALF_UP);
     }
 
     public UUID getId() {
@@ -41,12 +45,19 @@ public class Product {
         this.quantity = quantity;
     }
 
+    @SuppressWarnings("UnnecessaryLocalVariable")
     public BigDecimal getPrice() {
-        return price;
+        // Create local var to format to 2 decimal places
+        BigDecimal formattedPrice = price.setScale(2, BigDecimal.ROUND_HALF_UP);
+        return formattedPrice;
     }
 
     public void setPrice(BigDecimal price) {
-        this.price = price;
+        if (price.compareTo(BigDecimal.ZERO) == 0) {
+            return; // Bail if user has not changed default value
+        }
+        // Record only up to 2 decimal places
+        this.price = price.setScale(2, BigDecimal.ROUND_HALF_UP);
     }
 
     public String getSupplierName() {
