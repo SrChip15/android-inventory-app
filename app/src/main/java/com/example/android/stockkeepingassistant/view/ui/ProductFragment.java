@@ -1,6 +1,8 @@
 package com.example.android.stockkeepingassistant.view.ui;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -38,12 +40,13 @@ public class ProductFragment extends Fragment implements View.OnClickListener {
     private ImageView productImage;
     private ImageButton productCamera;
     private EditText productTitle;
+    private Button increaseQuantity;
     private EditText productQuantity;
+    private Button decreaseQuantity;
     private EditText productPrice;
     private Spinner supplierName;
     private TextView supplierEmail;
-    private Button increaseQuantity;
-    private Button decreaseQuantity;
+    private Button orderMoreButton;
     private Product product;
     private Warehouse warehouse;
 
@@ -100,6 +103,20 @@ public class ProductFragment extends Fragment implements View.OnClickListener {
         supplierName = view.findViewById(R.id.spinner_supplier_name);
         supplierEmail = view.findViewById(R.id.editor_supplier_email);
         setupSpinner();
+
+        orderMoreButton = view.findViewById(R.id.editor_order_more);
+        orderMoreButton.setOnClickListener(v -> {
+            Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
+            String subject = getString(R.string.editor_order_more_email_subject).toUpperCase();
+
+            emailIntent.setData(Uri.parse("mailto:")); // only email apps should handle this
+            emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{supplierEmail.getText().toString()});
+            emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
+
+            if (emailIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+                startActivity(emailIntent);
+            }
+        });
 
         return view;
     }
