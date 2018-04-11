@@ -176,9 +176,6 @@
     <!-- Dialog button text for the option to keep editing the current product [CHAR LIMIT=20] -->
     <string name="keep_editing">Keep Editing</string>
 
-    <!-- Label for editor menu option to add/edit product image [CHAR LIMIT=20] -->
-    <string name="action_add_image">Add/Edit Image</string>
-
     <!-- Toast message to the user when product image for existing product is added/edited [CHAR LIMIT=30] -->
     <string name="editor_product_image_update_success">Product image successfully updated</string>
     <string name="price">Price</string>

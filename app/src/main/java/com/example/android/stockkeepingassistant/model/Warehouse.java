@@ -74,6 +74,21 @@ public class Warehouse {
         database.insert(ProductEntry.TABLE_NAME, null, values);
     }
 
+    public void updateProduct(Product product) {
+        String uuidString = product.getId().toString();
+        ContentValues values = getContentValues(product);
+
+        database.update(ProductEntry.TABLE_NAME, values, ProductEntry.UUID + " = ?", new String[]{uuidString});
+    }
+
+    public void deleteProduct(UUID productId) {
+        database.delete(
+                ProductEntry.TABLE_NAME,
+                ProductEntry.UUID + " = ?",
+                new String[]{productId.toString()}
+        );
+    }
+
     @Nullable
     public List<Product> getProducts() {
         List<Product> products = new ArrayList<>();
@@ -105,13 +120,6 @@ public class Warehouse {
             cursor.moveToFirst();
             return cursor.getProduct();
         }
-    }
-
-    public void updateProduct(Product product) {
-        String uuidString = product.getId().toString();
-        ContentValues values = getContentValues(product);
-
-        database.update(ProductEntry.TABLE_NAME, values, ProductEntry.UUID + " = ?", new String[]{uuidString});
     }
 
     @SuppressLint("Recycle")
