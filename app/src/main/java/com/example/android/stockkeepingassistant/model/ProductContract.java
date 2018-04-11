@@ -1,4 +1,4 @@
-package com.example.android.stockkeepingassistant.data;
+package com.example.android.stockkeepingassistant.model;
 
 import android.content.ContentResolver;
 import android.net.Uri;
@@ -22,51 +22,32 @@ public final class ProductContract {
 	 * Use CONTENT_AUTHORITY to create the base of all URI's which apps will use to contact
 	 * the content provider.
 	 */
-	public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
+	private static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
-	/**
-	 * Possible path (appended to base content URI for possible URI's)
-	 */
+	/** Possible path (appended to base content URI for possible URI's) */
 	public static final String PATH_PRODUCTS = "products";
 
-	/**
-	 * Inner class that defines the table contents
-	 */
+	/** Inner class that defines the table contents */
 	public static class ProductEntry implements BaseColumns {
 		/** The content URI to access the product data in the provider */
 		public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_PRODUCTS);
 
-		/**
-		 * The MIME type of the {@link #CONTENT_URI} for a list of products.
-		 */
+		/** The MIME type of the {@link #CONTENT_URI} for a list of products. */
 		public static final String CONTENT_LIST_TYPE =
 				ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_PRODUCTS;
 
-		/**
-		 * The MIME type of the {@link #CONTENT_URI} for a single pet.
-		 */
+		/** The MIME type of the {@link #CONTENT_URI} for a single pet. */
 		public static final String CONTENT_ITEM_TYPE =
 				ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_PRODUCTS;
 
 		public static final String TABLE_NAME = "products";
 		public static final String _ID = BaseColumns._ID;
-		public static final String COLUMN_PRODUCT_IMAGE = "image";
-		public static final String COLUMN_PRODUCT_DESC = "description";
+		public static final String UUID = "uuid";
+		public static final String COLUMN_PRODUCT_TITLE = "title";
 		public static final String COLUMN_PRODUCT_PRICE = "price";
 		public static final String COLUMN_PRODUCT_QUANTITY = "quantity";
-		public static final String COLUMN_PRODUCT_SUPPLIER = "supplier";
-		public static final String COLUMN_PRODUCT_SUPPLIER_CONTACT = "supplier_email";
-
-		public static final String SUPPLIER_1 = "supplier_1@gmail.com";
-		public static final String SUPPLIER_2 = "supplier_2@gmail.com";
-		public static final String SUPPLIER_3 = "supplier_3@gmail.com";
-		public static final String SUPPLIER_4 = "supplier_4@gmail.com";
-		public static final String SUPPLIER_5 = "supplier_5@gmail.com";
-		public static final String SUPPLIER_6 = "supplier_6@gmail.com";
-		public static final String SUPPLIER_7 = "supplier_7@gmail.com";
-		public static final String SUPPLIER_8 = "supplier_8@gmail.com";
-		public static final String SUPPLIER_9 = "supplier_9@gmail.com";
-		public static final String SUPPLIER_10 = "supplier_10@gmail.com";
+		public static final String COLUMN_SUPPLIER_NAME = "supplier_name";
+		public static final String COLUMN_SUPPLIER_EMAIL = "supplier_email";
 	}
 
 }

@@ -21,13 +21,13 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:layout_marginBottom="@dimen/normal_margin"
-        android:layout_marginLeft="@dimen/normal_margin"
+        android:layout_marginStart="@dimen/normal_margin"
         android:layout_weight="2"
         android:orientation="vertical">
 
         <!-- Product description -->
         <TextView
-            android:id="@+id/list_item_product_desc"
+            android:id="@+id/list_item_product_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"

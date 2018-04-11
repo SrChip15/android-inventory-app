@@ -1,19 +1,18 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Layout for list of products -->
+<?xml version="1.0" encoding="utf-8"?><!-- Layout for list of products -->
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="@dimen/normal_margin"
-    tools:context="com.example.android.stockkeepingassistant.CatalogActivity">
+    tools:context=".view.ui.CatalogActivity">
 
     <!-- List of products -->
-    <ListView
+    <android.support.v7.widget.RecyclerView
         android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scrollbars="vertical"/>
+        android:scrollbars="vertical" />
 
     <!-- Empty view for the list -->
     <TextView
@@ -22,7 +21,8 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:text="@string/user_instructions"
-        android:textAppearance="?android:textAppearanceMedium"/>
+        android:textAppearance="?android:textAppearanceMedium"
+        android:visibility="gone" />
 
     <!-- New product addition button -->
     <android.support.design.widget.FloatingActionButton
@@ -30,8 +30,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_margin="@dimen/medium_margin"
-        android:src="@drawable/ic_add"/>
+        android:src="@drawable/ic_add" />
 
 </RelativeLayout>
