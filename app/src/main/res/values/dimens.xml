@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Small margin to decongest views -->
+    <!-- Small margin to de-congest views -->
     <dimen name="small_margin">4dp</dimen>
 
     <!-- Used at places which do well with just a little margin -->
@@ -21,13 +21,13 @@
     <!-- Top margin for "order more" button in the editor activity in detailed view mode -->
     <dimen name="top_margin_order_more_button">80dp</dimen>
 
-    <!-- Spinner height in EditorActivity -->
+    <!-- Spinner height -->
     <dimen name="spinner_height">48dp</dimen>
 
     <!-- Quantity modifying buttons' width -->
     <dimen name="quantity_modifiers_button_width">50dp</dimen>
 
-    <!-- Dimensions of ImageView for product image in EditorActivity -->
+    <!-- Dimensions of ImageView for product image -->
     <dimen name="product_image_view_dims">120dp</dimen>
 
 </resources>

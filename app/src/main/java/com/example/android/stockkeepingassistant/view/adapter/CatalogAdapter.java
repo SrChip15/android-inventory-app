@@ -37,7 +37,7 @@ public class CatalogAdapter extends RecyclerView.Adapter<CatalogAdapter.ProductH
         }
 
         void bindData(String productTitle, String productPrice, String productQuantity) {
-            image.setImageResource(R.mipmap.ic_launcher); // TODO: 4/10/18 Set the image from the photo file if exists
+            image.setImageResource(R.drawable.no_prod_img); // TODO: 4/10/18 Set the image from the photo file if exists
             title.setText(productTitle);
 
             price.setText(itemView.getContext().getString(R.string.list_item_price_label));

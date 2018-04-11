@@ -24,6 +24,7 @@ public class ProductActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_product);
+        getSupportActionBar().setTitle(R.string.product_fragment_title);
 
         UUID productId = (UUID) getIntent().getSerializableExtra(EXTRA_PRODUCT_ID);
 

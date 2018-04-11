@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -31,6 +32,7 @@ import com.example.android.stockkeepingassistant.model.Product;
 import com.example.android.stockkeepingassistant.model.Warehouse;
 
 import java.math.BigDecimal;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -49,6 +51,7 @@ public class ProductFragment extends Fragment implements View.OnClickListener {
     private Button orderMoreButton;
     private Product product;
     private Warehouse warehouse;
+    private FragmentActivity callingActivity;
 
     private static final String ARG_ID = "product_id";
 
@@ -65,6 +68,7 @@ public class ProductFragment extends Fragment implements View.OnClickListener {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        callingActivity = Objects.requireNonNull(getActivity());
         if (getArguments() != null) {
             UUID productId = (UUID) Objects.requireNonNull(getArguments().getSerializable(ARG_ID));
             warehouse = Warehouse.getInstance(getActivity());
@@ -79,41 +83,41 @@ public class ProductFragment extends Fragment implements View.OnClickListener {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_product, container, false);
 
-        productImage = view.findViewById(R.id.editor_product_image);
-        productCamera = view.findViewById(R.id.editor_product_camera);
+        productImage = view.findViewById(R.id.product_image);
+        productCamera = view.findViewById(R.id.product_camera);
 
-        productTitle = view.findViewById(R.id.editor_product_title);
+        productTitle = view.findViewById(R.id.product_title);
         productTitle.setText(product.getTitle());
         productTitle.addTextChangedListener(new GenericTextWatcher(productTitle));
 
-        productQuantity = view.findViewById(R.id.editor_product_quantity);
+        productQuantity = view.findViewById(R.id.product_quantity);
         productQuantity.setText(String.valueOf(product.getQuantity()));
         productQuantity.addTextChangedListener(new GenericTextWatcher(productQuantity));
 
-        increaseQuantity = view.findViewById(R.id.editor_quantity_increment);
+        increaseQuantity = view.findViewById(R.id.product_increase_quantity);
         increaseQuantity.setOnClickListener(this);
 
-        decreaseQuantity = view.findViewById(R.id.editor_quantity_decrement);
+        decreaseQuantity = view.findViewById(R.id.product_decrease_quantity);
         decreaseQuantity.setOnClickListener(this);
 
-        productPrice = view.findViewById(R.id.editor_product_price);
+        productPrice = view.findViewById(R.id.product_price);
         productPrice.setText(product.getPrice().toPlainString());
         productPrice.addTextChangedListener(new GenericTextWatcher(productPrice));
 
-        supplierName = view.findViewById(R.id.spinner_supplier_name);
-        supplierEmail = view.findViewById(R.id.editor_supplier_email);
+        supplierName = view.findViewById(R.id.product_supplier_name);
+        supplierEmail = view.findViewById(R.id.product_supplier_email);
         setupSpinner();
 
-        orderMoreButton = view.findViewById(R.id.editor_order_more);
+        orderMoreButton = view.findViewById(R.id.product_order_more);
         orderMoreButton.setOnClickListener(v -> {
             Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
-            String subject = getString(R.string.editor_order_more_email_subject).toUpperCase();
+            String subject = getString(R.string.product_order_more_email_subject).toUpperCase(Locale.getDefault());
 
             emailIntent.setData(Uri.parse("mailto:")); // only email apps should handle this
             emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{supplierEmail.getText().toString()});
             emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
 
-            if (emailIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+            if (emailIntent.resolveActivity(callingActivity.getPackageManager()) != null) {
                 startActivity(emailIntent);
             }
         });
@@ -132,7 +136,7 @@ public class ProductFragment extends Fragment implements View.OnClickListener {
         switch (item.getItemId()) {
             case R.id.delete_product:
                 warehouse.deleteProduct(product.getId());
-                getActivity().finish();
+                callingActivity.finish();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -176,11 +180,11 @@ public class ProductFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.editor_quantity_increment:
+            case R.id.product_increase_quantity:
                 int units = Integer.parseInt(productQuantity.getText().toString().trim());
                 productQuantity.setText(String.valueOf(++units));
                 break;
-            case R.id.editor_quantity_decrement:
+            case R.id.product_decrease_quantity:
                 int quantity = Integer.parseInt(productQuantity.getText().toString().trim());
                 if (quantity > 0) {
                     productQuantity.setText(String.valueOf(--quantity));
@@ -188,7 +192,7 @@ public class ProductFragment extends Fragment implements View.OnClickListener {
                     // The product is currently not in stock and cannot be decreased.
                     Toast.makeText(
                             getActivity(),
-                            getString(R.string.editor_decrement_button_negative),
+                            getString(R.string.product_decrease_button_negative),
                             Toast.LENGTH_SHORT
                     ).show();
                 }
@@ -217,13 +221,13 @@ public class ProductFragment extends Fragment implements View.OnClickListener {
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
             switch (view.getId()) {
-                case R.id.editor_product_title:
+                case R.id.product_title:
                     product.setTitle(s.toString());
                     break;
-                case R.id.editor_product_quantity:
+                case R.id.product_quantity:
                     product.setQuantity(Integer.valueOf(s.toString()));
                     break;
-                case R.id.editor_product_price:
+                case R.id.product_price:
                     product.setPrice(new BigDecimal(s.toString()));
                     break;
                 default:
