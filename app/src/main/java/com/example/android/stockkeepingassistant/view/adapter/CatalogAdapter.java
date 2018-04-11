@@ -39,7 +39,10 @@ public class CatalogAdapter extends RecyclerView.Adapter<CatalogAdapter.ProductH
         void bindData(String productTitle, String productPrice, String productQuantity) {
             image.setImageResource(R.mipmap.ic_launcher); // TODO: 4/10/18 Set the image from the photo file if exists
             title.setText(productTitle);
-            price.setText(productPrice);
+
+            price.setText(itemView.getContext().getString(R.string.list_item_price_label));
+            price.append(productPrice);
+
             quantity.setText(productQuantity);
         }
     }
@@ -63,7 +66,7 @@ public class CatalogAdapter extends RecyclerView.Adapter<CatalogAdapter.ProductH
     public void onBindViewHolder(@NonNull ProductHolder holder, int position) {
         Product product = products.get(position);
         holder.itemView.setOnClickListener(v -> {
-          Intent intent = new Intent(context, ProductActivity.class);
+          Intent intent = ProductActivity.newIntent(context, product.getId());
           context.startActivity(intent);
         });
         holder.bindData(product.getTitle(), product.getPrice().toString(), Integer.toString(product.getQuantity()));
@@ -72,5 +75,9 @@ public class CatalogAdapter extends RecyclerView.Adapter<CatalogAdapter.ProductH
     @Override
     public int getItemCount() {
         return products == null ? 0 : products.size();
+    }
+
+    public void setData(@Nullable List<Product> products) {
+        this.products = products;
     }
 }

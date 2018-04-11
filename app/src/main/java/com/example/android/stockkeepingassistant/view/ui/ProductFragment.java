@@ -25,11 +25,12 @@ import com.example.android.stockkeepingassistant.R;
 import com.example.android.stockkeepingassistant.model.Product;
 import com.example.android.stockkeepingassistant.model.Warehouse;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.UUID;
 
 @SuppressWarnings("FieldCanBeLocal")
-public class ProductFragment extends Fragment implements TextWatcher, View.OnClickListener{
+public class ProductFragment extends Fragment implements View.OnClickListener {
     /* Class variables */
     private ImageView productImage;
     private ImageButton productCamera;
@@ -58,7 +59,7 @@ public class ProductFragment extends Fragment implements TextWatcher, View.OnCli
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            UUID productId = Objects.requireNonNull((UUID) getArguments().getSerializable(ARG_ID));
+            UUID productId = (UUID) Objects.requireNonNull(getArguments().getSerializable(ARG_ID));
             warehouse = Warehouse.getInstance(getActivity());
             product = warehouse.getProduct(productId);
         } else {
@@ -76,24 +77,25 @@ public class ProductFragment extends Fragment implements TextWatcher, View.OnCli
 
         productTitle = view.findViewById(R.id.editor_product_title);
         productTitle.setText(product.getTitle());
-        productTitle.addTextChangedListener(this);
+        productTitle.addTextChangedListener(new GenericTextWatcher(productTitle));
 
         productQuantity = view.findViewById(R.id.editor_product_quantity);
         productQuantity.setText(String.valueOf(product.getQuantity()));
-        productQuantity.addTextChangedListener(this);
+        productQuantity.addTextChangedListener(new GenericTextWatcher(productQuantity));
 
         increaseQuantity = view.findViewById(R.id.editor_quantity_increment);
         increaseQuantity.setOnClickListener(this);
+
         decreaseQuantity = view.findViewById(R.id.editor_quantity_decrement);
         decreaseQuantity.setOnClickListener(this);
 
         productPrice = view.findViewById(R.id.editor_product_price);
-        productPrice.addTextChangedListener(this);
+        productPrice.setText(product.getPrice().toPlainString());
+        productPrice.addTextChangedListener(new GenericTextWatcher(productPrice));
 
         supplierName = view.findViewById(R.id.spinner_supplier_name);
-        setupSpinner();
-
         supplierEmail = view.findViewById(R.id.editor_supplier_email);
+        setupSpinner();
 
         return view;
     }
@@ -126,28 +128,10 @@ public class ProductFragment extends Fragment implements TextWatcher, View.OnCli
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
                 String firstInList = (String) parent.getItemAtPosition(0);
+                product.setSupplierName(firstInList);
                 product.setSupplierEmail(warehouse.resolveEmail(firstInList)); // Default is 1st in list
             }
         });
-    }
-
-    @Override
-    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        /* no-op */
-    }
-
-    @Override
-    public void onTextChanged(CharSequence s, int start, int before, int count) {
-        updateProduct();
-    }
-
-    private void updateProduct() {
-        // TODO: 4/9/18 Add implementation
-    }
-
-    @Override
-    public void afterTextChanged(Editable s) {
-        /* no-op */
     }
 
     @Override
@@ -170,6 +154,47 @@ public class ProductFragment extends Fragment implements TextWatcher, View.OnCli
                     ).show();
                 }
                 break;
+        }
+    }
+
+    @Override
+    public void onPause() {
+        warehouse.updateProduct(product);
+        super.onPause();
+    }
+
+    private class GenericTextWatcher implements TextWatcher {
+        private View view;
+
+        GenericTextWatcher(View view) {
+            this.view = view;
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            /* no-op */
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            switch (view.getId()) {
+                case R.id.editor_product_title:
+                    product.setTitle(s.toString());
+                    break;
+                case R.id.editor_product_quantity:
+                    product.setQuantity(Integer.valueOf(s.toString()));
+                    break;
+                case R.id.editor_product_price:
+                    product.setPrice(new BigDecimal(s.toString()));
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            /* no-op */
         }
     }
 }

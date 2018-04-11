@@ -18,6 +18,9 @@ public class CatalogActivity
 		extends AppCompatActivity
 		/*implements LoaderCallbacks<Cursor>*/ {
 
+	private RecyclerView recyclerView;
+	private CatalogAdapter adapter;
+
 	//private static final int PRODUCT_LOADER = 0;
 	private static final String TAG = CatalogActivity.class.getSimpleName();
 
@@ -29,12 +32,14 @@ public class CatalogActivity
 		// Setup FAB to open EditorActivity
 		FloatingActionButton fab = findViewById(R.id.fab);
 		fab.setOnClickListener(view -> {
-            Intent intent = new Intent(CatalogActivity.this, ProductActivity.class);
+			Product product = new Product();
+			Warehouse.getInstance(this).addProduct(product);
+            Intent intent = ProductActivity.newIntent(this, product.getId());
             startActivity(intent);
         });
 
 		// Find the ListView which will be populated with the pet data
-		RecyclerView recyclerView = findViewById(R.id.list);
+		recyclerView = findViewById(R.id.list);
 		recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 		recyclerView.setHasFixedSize(true);
 
@@ -65,12 +70,27 @@ public class CatalogActivity
 		Warehouse warehouse = Warehouse.getInstance(this);
 		List<Product> products = warehouse.getProducts();
 
-		CatalogAdapter adapter = new CatalogAdapter(this, products);
+		adapter = new CatalogAdapter(this, products);
 		recyclerView.setAdapter(adapter);
 
 		/*// Kick off the loader
 		getLoaderManager().initLoader(PRODUCT_LOADER, null, this);*/
 
+	}
+
+	@Override
+	protected void onResume() {
+		Warehouse warehouse = Warehouse.getInstance(this);
+		List<Product> products = warehouse.getProducts();
+
+		if (adapter == null) {
+			adapter = new CatalogAdapter(this, products);
+			recyclerView.setAdapter(adapter);
+		} else {
+			adapter.setData(products);
+			adapter.notifyDataSetChanged();
+		}
+		super.onResume();
 	}
 
 	/*@Override
