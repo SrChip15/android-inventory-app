@@ -143,10 +143,6 @@ public class ProductFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    private void setupWatchersOnInputFields() {
-        // TODO: 4/10/18 Set TextWatchers on all EditText child views
-    }
-
     private void setupSpinner() {
         Context context = Objects.requireNonNull(getActivity());
         // Create adapter for spinner from the String array
