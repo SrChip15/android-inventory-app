@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/StockKeepingAssistant.iml" filepath="$PROJECT_DIR$/StockKeepingAssistant.iml" />
+      <module fileurl="file://$PROJECT_DIR$/StockKeeper.iml" filepath="$PROJECT_DIR$/StockKeeper.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
