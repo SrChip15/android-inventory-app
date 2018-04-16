@@ -1,13 +1,18 @@
 package com.example.android.stockkeepingassistant.view.ui;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.FileProvider;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -17,6 +22,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -28,10 +34,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.stockkeepingassistant.R;
+import com.example.android.stockkeepingassistant.Utils;
 import com.example.android.stockkeepingassistant.model.Product;
 import com.example.android.stockkeepingassistant.model.Warehouse;
 
+import java.io.File;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
@@ -51,9 +60,12 @@ public class ProductFragment extends Fragment implements View.OnClickListener {
     private Button orderMoreButton;
     private Product product;
     private Warehouse warehouse;
-    private FragmentActivity callingActivity;
+    private File photoFile;
+    private int imageWidth;
+    private int imageHeight;
 
     private static final String ARG_ID = "product_id";
+    private static final int REQUEST_PHOTO = 2;
 
     public static ProductFragment newInstance(UUID productId) {
         Bundle args = new Bundle();
@@ -68,11 +80,12 @@ public class ProductFragment extends Fragment implements View.OnClickListener {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        callingActivity = Objects.requireNonNull(getActivity());
+
         if (getArguments() != null) {
             UUID productId = (UUID) Objects.requireNonNull(getArguments().getSerializable(ARG_ID));
             warehouse = Warehouse.getInstance(getActivity());
             product = warehouse.getProduct(productId);
+            photoFile = warehouse.getPhotoFile(product);
         } else {
             throw new IllegalStateException("Fragment cannot be instantiated w/o product ID");
         }
@@ -84,7 +97,46 @@ public class ProductFragment extends Fragment implements View.OnClickListener {
         View view = inflater.inflate(R.layout.fragment_product, container, false);
 
         productImage = view.findViewById(R.id.product_image);
+        productImage.getViewTreeObserver()
+                .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                productImage.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                imageWidth = productImage.getMeasuredWidth();
+                imageHeight = productImage.getMeasuredHeight();
+
+                updateProductImage();
+            }
+        });
+
         productCamera = view.findViewById(R.id.product_camera);
+        final Intent captureImage = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        boolean canTakePhoto = photoFile != null &&
+                captureImage.resolveActivity(getActivity().getPackageManager()) != null;
+        productCamera.setEnabled(canTakePhoto);
+
+        productCamera.setOnClickListener(v -> {
+            Uri uri = FileProvider.getUriForFile(
+                    getActivity(),
+                    "com.example.android.stockkeepingassistant.fileprovider",
+                    photoFile
+            );
+            captureImage.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+
+            List<ResolveInfo> allCameraActivities =
+                    getActivity()
+                            .getPackageManager()
+                            .queryIntentActivities(captureImage, PackageManager.MATCH_DEFAULT_ONLY);
+            for (ResolveInfo cameraActivity : allCameraActivities) {
+                getActivity().grantUriPermission(
+                        cameraActivity.activityInfo.packageName,
+                        uri,
+                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                );
+            }
+
+            startActivityForResult(captureImage, REQUEST_PHOTO);
+        });
 
         productTitle = view.findViewById(R.id.product_title);
         productTitle.setText(product.getTitle());
@@ -117,12 +169,30 @@ public class ProductFragment extends Fragment implements View.OnClickListener {
             emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{supplierEmail.getText().toString()});
             emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
 
-            if (emailIntent.resolveActivity(callingActivity.getPackageManager()) != null) {
+            if (emailIntent.resolveActivity(getActivity().getPackageManager()) != null) {
                 startActivity(emailIntent);
             }
         });
 
         return view;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode != Activity.RESULT_OK) {
+            return;
+        }
+
+        if (requestCode == REQUEST_PHOTO) {
+            Uri uri = FileProvider.getUriForFile(
+                    getActivity(),
+                    "com.example.android.stockkeepingassistant.fileprovider",
+                    photoFile
+            );
+
+            getActivity().revokeUriPermission(uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            updateProductImage();
+        }
     }
 
     @Override
@@ -136,10 +206,24 @@ public class ProductFragment extends Fragment implements View.OnClickListener {
         switch (item.getItemId()) {
             case R.id.delete_product:
                 warehouse.deleteProduct(product.getId());
-                callingActivity.finish();
+                getActivity().finish();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void updateProductImage() {
+        if (photoFile == null || !photoFile.exists()) {
+            productImage.setImageBitmap(null);
+        } else {
+            Bitmap photo =
+                    Utils.getScaledBitmap(
+                            photoFile.getPath(),
+                            imageWidth,
+                            imageHeight
+                    );
+            productImage.setImageBitmap(photo);
         }
     }
 
@@ -224,7 +308,9 @@ public class ProductFragment extends Fragment implements View.OnClickListener {
                     product.setQuantity(Integer.valueOf(s.toString()));
                     break;
                 case R.id.product_price:
-                    product.setPrice(new BigDecimal(s.toString()));
+                    if (s.length() > 0) {
+                        product.setPrice(new BigDecimal(s.toString()));
+                    }
                     break;
                 default:
                     break;

@@ -11,6 +11,7 @@ import android.support.annotation.Nullable;
 import com.example.android.stockkeepingassistant.R;
 import com.example.android.stockkeepingassistant.model.ProductContract.ProductEntry;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -120,6 +121,11 @@ public class Warehouse {
             cursor.moveToFirst();
             return cursor.getProduct();
         }
+    }
+
+    public File getPhotoFile(Product product) {
+        File filesDir = context.getFilesDir();
+        return new File(filesDir, product.getPhotoFilename());
     }
 
     @SuppressLint("Recycle")
