@@ -29,6 +29,10 @@ public class Product {
         return id;
     }
 
+    public String getPhotoFilename() {
+        return "IMG_" + getId().toString() + ".jpg";
+    }
+
     public String getTitle() {
         return title;
     }
