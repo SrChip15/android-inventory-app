@@ -22,6 +22,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -60,6 +61,8 @@ public class ProductFragment extends Fragment implements View.OnClickListener {
     private Product product;
     private Warehouse warehouse;
     private File photoFile;
+    private int imageWidth;
+    private int imageHeight;
 
     private static final String ARG_ID = "product_id";
     private static final int REQUEST_PHOTO = 2;
@@ -77,6 +80,7 @@ public class ProductFragment extends Fragment implements View.OnClickListener {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+
         if (getArguments() != null) {
             UUID productId = (UUID) Objects.requireNonNull(getArguments().getSerializable(ARG_ID));
             warehouse = Warehouse.getInstance(getActivity());
@@ -93,11 +97,22 @@ public class ProductFragment extends Fragment implements View.OnClickListener {
         View view = inflater.inflate(R.layout.fragment_product, container, false);
 
         productImage = view.findViewById(R.id.product_image);
-        updateProductImage();
+        productImage.getViewTreeObserver()
+                .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                productImage.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                imageWidth = productImage.getMeasuredWidth();
+                imageHeight = productImage.getMeasuredHeight();
+
+                updateProductImage();
+            }
+        });
 
         productCamera = view.findViewById(R.id.product_camera);
         final Intent captureImage = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        boolean canTakePhoto = photoFile != null && captureImage.resolveActivity(getActivity().getPackageManager()) != null;
+        boolean canTakePhoto = photoFile != null &&
+                captureImage.resolveActivity(getActivity().getPackageManager()) != null;
         productCamera.setEnabled(canTakePhoto);
 
         productCamera.setOnClickListener(v -> {
@@ -163,24 +178,6 @@ public class ProductFragment extends Fragment implements View.OnClickListener {
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.fragment_product, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.delete_product:
-                warehouse.deleteProduct(product.getId());
-                getActivity().finish();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode != Activity.RESULT_OK) {
             return;
@@ -198,11 +195,34 @@ public class ProductFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.fragment_product, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.delete_product:
+                warehouse.deleteProduct(product.getId());
+                getActivity().finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     private void updateProductImage() {
         if (photoFile == null || !photoFile.exists()) {
             productImage.setImageBitmap(null);
         } else {
-            Bitmap photo = Utils.getScaledBitmap(photoFile.getPath(), getActivity());
+            Bitmap photo =
+                    Utils.getScaledBitmap(
+                            photoFile.getPath(),
+                            imageWidth,
+                            imageHeight
+                    );
             productImage.setImageBitmap(photo);
         }
     }

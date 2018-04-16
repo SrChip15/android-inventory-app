@@ -1,6 +1,5 @@
 package com.example.android.stockkeepingassistant.view.adapter;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -10,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -24,17 +24,28 @@ import java.io.File;
 import java.util.List;
 
 public class CatalogAdapter extends RecyclerView.Adapter<CatalogAdapter.ProductHolder> {
-    class ProductHolder extends RecyclerView.ViewHolder {
+    static class ProductHolder extends RecyclerView.ViewHolder {
         private ImageView image;
         private TextView title;
         private TextView price;
         private TextView quantity;
         private Button sellButton;
+        private int imageWidth;
+        private int imageHeight;
 
         ProductHolder(View itemView) {
             super(itemView);
 
             image = itemView.findViewById(R.id.product_image_view);
+            image.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    image.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    imageWidth = image.getMeasuredWidth();
+                    imageHeight = image.getMeasuredHeight();
+                }
+            });
+
             title = itemView.findViewById(R.id.list_item_product_title);
             price = itemView.findViewById(R.id.list_item_product_price);
             quantity = itemView.findViewById(R.id.list_item_product_quantity);
@@ -45,20 +56,21 @@ public class CatalogAdapter extends RecyclerView.Adapter<CatalogAdapter.ProductH
             if (photo != null) {
                 image.setImageBitmap(photo);
             } else {
-                image.setImageResource(R.drawable.no_prod_img); // TODO: 4/10/18 Set the image from the photo file if exists
+                image.setImageResource(R.drawable.no_prod_img);
             }
 
             title.setText(productTitle);
+            quantity.setText(productQuantity);
 
             price.setText(itemView.getContext().getString(R.string.list_item_price_label));
             price.append(productPrice);
 
-            quantity.setText(productQuantity);
         }
     }
 
     private List<Product> products;
     private Context context;
+
 
     public CatalogAdapter(Context context, @Nullable List<Product> products) {
         this.products = products;
@@ -79,7 +91,7 @@ public class CatalogAdapter extends RecyclerView.Adapter<CatalogAdapter.ProductH
         File photoFile = Warehouse.getInstance(context).getPhotoFile(product);
         Bitmap photo = null;
         if (photoFile != null && photoFile.exists()) {
-            photo = Utils.getScaledBitmap(photoFile.getPath(), (Activity) context);
+            photo = Utils.getScaledBitmap(photoFile.getPath(), holder.imageWidth, holder.imageHeight);
         }
 
         holder.bindData(photo, product.getTitle(), product.getPrice().toString(), Integer.toString(product.getQuantity()));
