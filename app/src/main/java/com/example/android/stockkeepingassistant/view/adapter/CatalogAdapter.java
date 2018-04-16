@@ -1,7 +1,9 @@
 package com.example.android.stockkeepingassistant.view.adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
@@ -13,9 +15,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.android.stockkeepingassistant.R;
+import com.example.android.stockkeepingassistant.Utils;
 import com.example.android.stockkeepingassistant.model.Product;
+import com.example.android.stockkeepingassistant.model.Warehouse;
 import com.example.android.stockkeepingassistant.view.ui.ProductActivity;
 
+import java.io.File;
 import java.util.List;
 
 public class CatalogAdapter extends RecyclerView.Adapter<CatalogAdapter.ProductHolder> {
@@ -36,8 +41,13 @@ public class CatalogAdapter extends RecyclerView.Adapter<CatalogAdapter.ProductH
             sellButton = itemView.findViewById(R.id.list_item_sell_button);
         }
 
-        void bindData(String productTitle, String productPrice, String productQuantity) {
-            image.setImageResource(R.drawable.no_prod_img); // TODO: 4/10/18 Set the image from the photo file if exists
+        void bindData(@Nullable Bitmap photo, String productTitle, String productPrice, String productQuantity) {
+            if (photo != null) {
+                image.setImageBitmap(photo);
+            } else {
+                image.setImageResource(R.drawable.no_prod_img); // TODO: 4/10/18 Set the image from the photo file if exists
+            }
+
             title.setText(productTitle);
 
             price.setText(itemView.getContext().getString(R.string.list_item_price_label));
@@ -65,11 +75,18 @@ public class CatalogAdapter extends RecyclerView.Adapter<CatalogAdapter.ProductH
     @Override
     public void onBindViewHolder(@NonNull ProductHolder holder, int position) {
         Product product = products.get(position);
+
+        File photoFile = Warehouse.getInstance(context).getPhotoFile(product);
+        Bitmap photo = null;
+        if (photoFile != null && photoFile.exists()) {
+            photo = Utils.getScaledBitmap(photoFile.getPath(), (Activity) context);
+        }
+
+        holder.bindData(photo, product.getTitle(), product.getPrice().toString(), Integer.toString(product.getQuantity()));
         holder.itemView.setOnClickListener(v -> {
-          Intent intent = ProductActivity.newIntent(context, product.getId());
-          context.startActivity(intent);
+            Intent intent = ProductActivity.newIntent(context, product.getId());
+            context.startActivity(intent);
         });
-        holder.bindData(product.getTitle(), product.getPrice().toString(), Integer.toString(product.getQuantity()));
     }
 
     @Override
