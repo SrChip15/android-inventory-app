@@ -1,5 +1,7 @@
 package com.example.android.stockkeepingassistant.model;
 
+import android.support.annotation.Nullable;
+
 import java.math.BigDecimal;
 import java.util.UUID;
 
@@ -64,6 +66,7 @@ public class Product {
         this.price = price.setScale(2, BigDecimal.ROUND_HALF_UP);
     }
 
+    @Nullable
     public String getSupplierName() {
         return supplierName;
     }
