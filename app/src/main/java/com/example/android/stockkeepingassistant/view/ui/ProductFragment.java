@@ -63,6 +63,7 @@ public class ProductFragment extends Fragment implements View.OnClickListener {
     private File photoFile;
     private int imageWidth;
     private int imageHeight;
+    private int position;
 
     private static final String ARG_ID = "product_id";
     private static final int REQUEST_PHOTO = 2;
@@ -88,6 +89,16 @@ public class ProductFragment extends Fragment implements View.OnClickListener {
             photoFile = warehouse.getPhotoFile(product);
         } else {
             throw new IllegalStateException("Fragment cannot be instantiated w/o product ID");
+        }
+
+        if (product.getSupplierName() != null) {
+            String[] array = getActivity().getResources().getStringArray(R.array.array_supplier_contact_option);
+            for (int i = 0; i < array.length; i++) {
+                if (array[i].equals(product.getSupplierName())) {
+                    position = i;
+                    break;
+                }
+            }
         }
     }
 
@@ -230,13 +241,18 @@ public class ProductFragment extends Fragment implements View.OnClickListener {
     private void setupSpinner() {
         Context context = Objects.requireNonNull(getActivity());
         // Create adapter for spinner from the String array
-        ArrayAdapter supplierSpinnerAdapter = ArrayAdapter.createFromResource(context,
-                R.array.array_supplier_contact_option, android.R.layout.simple_spinner_item);
+        ArrayAdapter supplierSpinnerAdapter = ArrayAdapter.createFromResource(
+                context,
+                R.array.array_supplier_contact_option,
+                android.R.layout.simple_spinner_item
+        );
         supplierSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
         supplierName.setAdapter(supplierSpinnerAdapter);
+        if (product.getSupplierName() != null) {
+            supplierName.setSelection(position);
+        }
 
         // Get user selected supplier and map to app email ID
-        Warehouse warehouse = Warehouse.getInstance(context);
         supplierName.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -245,14 +261,18 @@ public class ProductFragment extends Fragment implements View.OnClickListener {
                     product.setSupplierName(selection);
                     product.setSupplierEmail(warehouse.resolveEmail(selection));
                     supplierEmail.setText(product.getSupplierEmail());
+                    warehouse.updateProduct(product);
                 }
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                String firstInList = (String) parent.getItemAtPosition(0);
-                product.setSupplierName(firstInList);
-                product.setSupplierEmail(warehouse.resolveEmail(firstInList)); // Default is 1st in list
+                if (product.getSupplierName() == null) {
+                    String firstInList = (String) parent.getItemAtPosition(0);
+                    product.setSupplierName(firstInList);
+                    product.setSupplierEmail(warehouse.resolveEmail(firstInList)); // Default is 1st in list
+                    warehouse.updateProduct(product);
+                }
             }
         });
     }
