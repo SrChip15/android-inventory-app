@@ -1,4 +1,6 @@
-# Inventory App Project
+Inventory App Project
+======================
+
 The application helps a small business owner to log and track inventory. Essentially, the application is managed in two screens.
 The splash screen or in this case, the catalog screen, lists all the owner's inventory along with related product details. The 
 owner can also make quick sale from this screen by clicking on the "sell" button on the right hand side of the screen.
@@ -13,20 +15,25 @@ with "from", "to" and "subject" pre-filled, using the default email application.
 This app has been built to the specifications of the inventory app project rubric, which is part of the 
 Data Storage module of [Udacity's Android Basics Nanodegree program](https://www.udacity.com/course/android-basics-nanodegree-by-google--nd803).
 
-### Objective
+Objective
+-----------
+
 The goal is to design and create the structure of an Inventory App which would allow a store to keep track of its inventory of 
 products. The app will need to store information about price, quantity available, supplier, and a picture of the product. It 
 will also need to allow the user to track sales and shipments and make it easy for the user to order more from the listed 
 supplier.
 
-### Tools
+Tools
+------
+
 * Gradle v4.1
 * Android Plugin v3.0.1
 * Android API v27
 * Android Build Tools v27
 * SQLite Database
 
-# Screenshots
+Screenshots
+------------
 <img src="https://raw.githubusercontent.com/SrChip15/android-inventory-app/master/splash_screen_blank.png"
 width="250"/>
 <img src="https://raw.githubusercontent.com/SrChip15/android-inventory-app/master/splash_screen_fill.png"
@@ -38,3 +45,5 @@ width="250"/>
 width="250"/>
 <img src="https://raw.githubusercontent.com/SrChip15/android-inventory-app/master/edit_screen_ex_prod_options.png"
 width="250"/>
+
+
