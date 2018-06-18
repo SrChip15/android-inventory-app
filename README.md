@@ -1,16 +1,9 @@
 Inventory App Project
 ======================
 
-The application helps a small business owner to log and track inventory. Essentially, the application is managed in two screens.
-The splash screen or in this case, the catalog screen, lists all the owner's inventory along with related product details. The 
-owner can also make quick sale from this screen by clicking on the "sell" button on the right hand side of the screen.
+The application helps a small business to log and track inventory. Essentially, the application is managed in two screens. The splash screen or in this case, the catalog screen, lists all inventory along with related product details. Instant sale can be made from this screen by clicking on the "sell" button on the right hand side of the screen.
 
-Secondly, the editor screen, lets the owner to add a product to the inventory. All details requested in this screen is 
-mandatory to successfully add the product to the database. Failing to do so does not log the product and consequently cannot be 
-tracked with this application. The owner can also order more of the same existing product by going into the editor screen, this 
-time, and clicking on the "order more" button. For existing products, along with the product information additional options and
-"order more" feature is also displayed. By clicking on the "order more" button the owner is handed over a new email template 
-with "from", "to" and "subject" pre-filled, using the default email application.
+All details requested in the editor screen is mandatory to successfully add the product to the database. Failing to do so does not log the product and consequently cannot be tracked with this application. More of the same existing product can be added by going into the editor screen and clicking on the "order more" button. For existing products, along with the product information additional options and "order more" feature is also displayed. By clicking on the "order more" opens up the default email client with a pre-filled (addresses and subject) new email template.
 
 Objective
 -----------
