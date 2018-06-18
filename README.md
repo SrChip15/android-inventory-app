@@ -12,9 +12,6 @@ time, and clicking on the "order more" button. For existing products, along with
 "order more" feature is also displayed. By clicking on the "order more" button the owner is handed over a new email template 
 with "from", "to" and "subject" pre-filled, using the default email application.
 
-This app has been built to the specifications of the inventory app project rubric, which is part of the 
-Data Storage module of [Udacity's Android Basics Nanodegree program](https://www.udacity.com/course/android-basics-nanodegree-by-google--nd803).
-
 Objective
 -----------
 
